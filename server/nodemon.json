@@ -1,0 +1,8 @@
+{
+  "watch": ["src", "../packages/shared/src", "../packages/engine/src"],
+  "ext": "ts",
+  "exec": "pnpm --filter @peakelo/shared build && node -r dotenv/config -r @swc-node/register src/index.ts",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}

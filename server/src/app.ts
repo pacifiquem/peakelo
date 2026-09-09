@@ -1,0 +1,28 @@
+import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
+import { env } from './config/env';
+import { pinoOptions } from './lib/logger';
+import { registerErrorHandler } from './common/error-handler';
+import { healthRoutes } from './routes/health';
+
+export function buildApp() {
+  const app = Fastify({ logger: pinoOptions });
+
+  app.register(helmet, {
+    global: true,
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  });
+  app.register(cors, {
+    origin: env.corsOrigins,
+    credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'Accept'],
+  });
+  app.register(rateLimit, { max: 100, timeWindow: '1 minute' });
+  registerErrorHandler(app);
+  app.register(healthRoutes);
+  return app;
+}

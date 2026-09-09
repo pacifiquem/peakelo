@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+.next
+out
+pnpm-lock.yaml
+skills-lock.json
+.agents
+docs/projectdef/sample-bare-analysis

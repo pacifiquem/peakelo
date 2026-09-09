@@ -1,0 +1,26 @@
+{
+  "name": "peakelo",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@11.6.0",
+  "engines": {
+    "node": ">=22.13.0",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "pnpm --parallel --filter @peakelo/client --filter @peakelo/server dev",
+    "dev:client": "pnpm --filter @peakelo/client dev",
+    "dev:server": "pnpm --filter @peakelo/server dev",
+    "build": "pnpm --filter @peakelo/shared build && pnpm --filter @peakelo/engine build && pnpm --filter @peakelo/server build && pnpm --filter @peakelo/client build",
+    "typecheck": "pnpm --filter @peakelo/shared build && pnpm --filter @peakelo/engine build && pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm --filter @peakelo/shared test && pnpm --filter @peakelo/engine test && pnpm --filter @peakelo/server test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "only-allow": "^1.2.1",
+    "prettier": "^3.6.2"
+  }
+}
