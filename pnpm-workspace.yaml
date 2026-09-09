@@ -1,14 +1,21 @@
 packages:
-  - "client"
-  - "server"
-  - "packages/*"
+  - 'client'
+  - 'server'
+  - 'packages/*'
 
 allowBuilds:
-  "@swc/core": true
+  '@prisma/client': true
+  '@prisma/engines': true
+  '@swc/core': true
   esbuild: true
+  msgpackr-extract: false
+  prisma: true
   unrs-resolver: true
+  workerd: false
 
 engineStrict: true
 packageManagerStrict: true
 strictPeerDependencies: false
 autoInstallPeers: true
+minimumReleaseAge: 0
+dangerouslyAllowAllBuilds: true

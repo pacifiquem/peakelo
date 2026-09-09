@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: peakelo
+      POSTGRES_DB: peakelo
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - peakelo_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U peakelo -d peakelo']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  peakelo_pg:

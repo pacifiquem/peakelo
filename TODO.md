@@ -2,16 +2,14 @@
 
 ## In progress
 
-- [x] pnpm monorepo, pnpm-only enforcement, CI, server scaffold, AlignUI foundation, AGENTS.md
+- [ ] Live Google OAuth + a real import of your own games (needs your credentials)
 
 ## Next up
 
-- [ ] First Prisma model + `DATABASE_URL` (stop and ask before choosing tables)
-- [ ] Auth strategy (stop and ask)
-- [ ] Chess.com / Lichess import
 - [ ] Game analysis pipeline
 - [ ] Player profile + human-language writeup
 - [ ] Payments (14.99 / 34.99 / 1.22) — stop and ask for processor
+- [ ] Official Chess.com OAuth once they issue endpoints (button is wired, creds are not)
 
 ## Done
 
@@ -21,3 +19,9 @@
 - [x] AlignUI utils + Peakelo theme tokens
 - [x] `align-ui` project skill + `docs/design/ui.md`
 - [x] GitHub Actions CI (typecheck, lint, test, build)
+- [x] First Prisma models (User, AuthAccount, Session, Onboarding, Game, SyncState)
+- [x] Google / Lichess / Chess.com OAuth + onboarding + initial import + 30-minute sync
+- [x] Join polish: official logos, equal buttons, toasts, no setup copy, focus labels
+- [x] Dual Chess.com + Lichess import with source switcher (Pro later — ADR 0001)
+- [x] Import ticker (Fetching / Indexing / …), visible disabled buttons, official green Chess.com pawn
+- [x] Onboarding layout: one scoresheet per step instead of a pile of boxes

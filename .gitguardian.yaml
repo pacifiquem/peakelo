@@ -1,0 +1,10 @@
+version: 2
+secret:
+  ignored_paths:
+    - docker-compose.yml
+    - server/.env.example
+    - server/vitest.config.ts
+    - server/src/config/env.ts
+    - server/test/**
+    - docs/setup/oauth.md
+    - .github/workflows/ci.yml

@@ -13,11 +13,12 @@ const BUTTON_ICON_NAME = 'ButtonIcon';
 export const buttonVariants = tv({
   slots: {
     root: [
-      'group relative inline-flex items-center justify-center whitespace-nowrap outline-none',
+      'group relative inline-flex cursor-pointer items-center justify-center whitespace-nowrap outline-none',
       'border-2 border-ink font-display font-bold',
       'transition duration-200 ease-out',
       'focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink',
-      'disabled:pointer-events-none disabled:bg-bg-weak-50 disabled:text-text-disabled-300 disabled:shadow-none',
+      'disabled:cursor-not-allowed disabled:bg-bg-soft-200 disabled:text-text-sub-600',
+      'disabled:hover:bg-bg-soft-200 disabled:hover:text-text-sub-600',
     ],
     icon: ['flex size-5 shrink-0 items-center justify-center'],
   },
@@ -59,20 +60,14 @@ export const buttonVariants = tv({
       variant: 'primary',
       mode: 'filled',
       class: {
-        root: [
-          'bg-primary-base text-text-white-0 shadow-regular-sm',
-          'hover:bg-primary-dark',
-        ],
+        root: ['bg-primary-base text-text-white-0 shadow-regular-sm', 'hover:bg-primary-dark'],
       },
     },
     {
       variant: 'primary',
       mode: 'stroke',
       class: {
-        root: [
-          'bg-bg-white-0 text-primary-base shadow-regular-xs',
-          'hover:bg-primary-alpha-10',
-        ],
+        root: ['bg-bg-white-0 text-primary-base shadow-regular-xs', 'hover:bg-primary-alpha-10'],
       },
     },
     {
@@ -100,10 +95,7 @@ export const buttonVariants = tv({
       variant: 'neutral',
       mode: 'stroke',
       class: {
-        root: [
-          'bg-bg-white-0 text-text-strong-950 shadow-regular-xs',
-          'hover:bg-bg-weak-50',
-        ],
+        root: ['bg-bg-white-0 text-text-strong-950 shadow-regular-xs', 'hover:bg-bg-weak-50'],
       },
     },
     {

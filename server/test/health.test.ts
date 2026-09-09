@@ -19,7 +19,7 @@ describe('health', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toMatchObject({
       status: 'ok',
-      checks: { database: 'skipped' },
+      checks: { database: process.env.DATABASE_URL ? 'ok' : 'skipped' },
     });
   });
 
