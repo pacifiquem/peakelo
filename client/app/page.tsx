@@ -10,8 +10,8 @@ export default function Home() {
         Master chess.
       </h1>
       <p className="max-w-xl text-lg text-text-sub-600">
-        Human analysis, player profiles, and drills. Product work has not started — this shell
-        holds the design system only.
+        Import your Chess.com or Lichess games, tell us what you want to get better at, and we keep
+        the rest of your games in sync.
       </p>
       <Button.Root asChild className="w-fit">
         <Link href="/join">Join</Link>

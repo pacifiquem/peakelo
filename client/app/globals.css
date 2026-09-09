@@ -70,6 +70,45 @@ body {
   color: var(--color-text-white-0);
 }
 
+button,
+a,
+[role='button'] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+@keyframes import-scan {
+  from {
+    transform: translateX(-40%);
+  }
+  to {
+    transform: translateX(720%);
+  }
+}
+
+@keyframes import-flip {
+  from {
+    opacity: 0;
+    transform: translateY(0.3em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.import-scan {
+  animation: import-scan 1.6s linear infinite;
+}
+
+.import-flip {
+  animation: import-flip 0.28s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

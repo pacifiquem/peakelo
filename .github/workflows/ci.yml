@@ -9,6 +9,20 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: peakelo
+          POSTGRES_DB: peakelo
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U peakelo -d peakelo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -25,13 +39,28 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck
+        env:
+          DATABASE_URL: postgresql://peakelo@localhost:5432/peakelo
+          DIRECT_URL: postgresql://peakelo@localhost:5432/peakelo
         run: pnpm typecheck
 
       - name: Lint
         run: pnpm lint
 
+      - name: Migrate
+        env:
+          DATABASE_URL: postgresql://peakelo@localhost:5432/peakelo
+          DIRECT_URL: postgresql://peakelo@localhost:5432/peakelo
+        run: pnpm --filter @peakelo/server exec prisma migrate deploy
+
       - name: Test
+        env:
+          DATABASE_URL: postgresql://peakelo@localhost:5432/peakelo
+          DIRECT_URL: postgresql://peakelo@localhost:5432/peakelo
         run: pnpm test
 
       - name: Build
+        env:
+          DATABASE_URL: postgresql://peakelo@localhost:5432/peakelo
+          DIRECT_URL: postgresql://peakelo@localhost:5432/peakelo
         run: pnpm build

@@ -54,7 +54,7 @@ These override convenience, speed of typing, or "I think this is probably fine."
 6. **Reuse relentlessly.** Before writing a function, type, client, hook, or schema, search for an
    existing one. Three similar lines is fine; a third copy of the same 20-line block is not.
    Apply the `codebase-design` skill: small interfaces, real implementation behind them.
-7. **Minimal comments.** Default to zero. Only write a comment that captures a non-obvious *why*.
+7. **Minimal comments.** Default to zero. Only write a comment that captures a non-obvious _why_.
 8. **Test what you build.** Use the `tdd` skill where it applies. Every API route has a contract
    test. Every non-trivial function is tested at its public seam. Typecheck + lint + tests before
    calling a task done.
@@ -70,6 +70,15 @@ These override convenience, speed of typing, or "I think this is probably fine."
     auth, or analysis logic unless the user explicitly asks.
 14. **pnpm only.** Never run `npm` or `yarn` in this repo. Root `preinstall` blocks them. New
     packages are added with `pnpm add` / `pnpm add -D` from the relevant filter.
+15. **No developer setup copy in the client.** Never mention env var names, `docs/setup`, missing
+    credentials, or how to configure OAuth on a user-facing page. If a provider is unavailable, the
+    API returns a normal error and the client shows a toast.
+16. **Required env stays required.** Do not loosen validation so a process can start. Missing
+    `SESSION_SECRET`, `DATABASE_URL`, or Google OAuth credentials fail boot outside `test`.
+17. **Errors are toasts, top-center.** Never `alert` / `confirm` / `prompt`, and never a Banner as
+    the only error. Empty states may stay on the page.
+18. **Latest compatible dependencies.** Target the newest version that works with this stack. Pin
+    an older line only when the latest would break immediately (for example Prisma 7+ vs 6.x).
 
 ---
 
@@ -107,13 +116,13 @@ crosses the client/server boundary. If both sides would otherwise copy a shape, 
 
 **Put here (and only here):**
 
-| Kind | Examples for Peakelo |
-| --- | --- |
-| Request / query / body schemas | signup, import-N-games, start analysis |
-| Public response DTOs | `PublicUser`, `PublicGame`, `PublicPlayerProfile`, analysis writeup payload |
-| Zod enums | `timeControl` (`bullet` \| `blitz` \| `rapid`), `gameSource` (`chesscom` \| `lichess`), `plan` (`analysis` \| `training`) |
-| Cross-cutting constants | page size, plan prices (`14.99` / `34.99` / `1.22`), cookie names, header names |
-| Pagination + API error envelope | already in `api-error.ts`, `pagination.ts` |
+| Kind                            | Examples for Peakelo                                                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Request / query / body schemas  | signup, import-N-games, start analysis                                                                                    |
+| Public response DTOs            | `PublicUser`, `PublicGame`, `PublicPlayerProfile`, analysis writeup payload                                               |
+| Zod enums                       | `timeControl` (`bullet` \| `blitz` \| `rapid`), `gameSource` (`chesscom` \| `lichess`), `plan` (`analysis` \| `training`) |
+| Cross-cutting constants         | page size, plan prices (`14.99` / `34.99` / `1.22`), cookie names, header names                                           |
+| Pagination + API error envelope | already in `api-error.ts`, `pagination.ts`                                                                                |
 
 Pattern: `export const fooSchema = z.object({...}); export type Foo = z.infer<typeof fooSchema>;`
 
@@ -156,14 +165,21 @@ rather than silently deviate, then update this section.
   `docs/design/ui.md`. Mandatory skill: `align-ui`.
 - **Backend:** Node.js + **Fastify**. **SWC** transpiles (`@swc/cli`, `@swc-node/register`); `tsc`
   only type-checks.
-- **Database (planned):** Postgres + **Prisma**. `DATABASE_URL` (pooled) vs `DIRECT_URL` (migrate).
-  Do not add the first model without asking.
+- **Database:** Postgres + **Prisma**. `DATABASE_URL` (pooled) vs `DIRECT_URL` (migrate). First
+  models are `User`, `AuthAccount`, `Session`, `Onboarding`, `Game`, `SyncState`.
+- **Auth:** Google, Lichess, and Chess.com OAuth only. No passwords. Sessions are httpOnly cookies
+  (`peakelo_session`). Chess.com OAuth requires Chess.com approval — see
+  [`docs/setup/oauth.md`](./docs/setup/oauth.md). Until those creds exist, Chess.com is a linked
+  public username after Google/Lichess login (import + 30-minute sync). Do not add a fourth login
+  method without asking.
 - **Validation:** **Zod** for request bodies, env, and config. One schema, not a schema plus a
   hand-written type. Shared schemas live in `@peakelo/shared` (§3.1).
 - **Logging:** **Pino** on the server. No `console.log` in server code.
 - **Testing:** **Vitest** on server, shared, and engine.
 - **Formatting & linting:** Prettier at the root; ESLint per package with `eslint-config-prettier`.
 - **Chess rules:** `@peakelo/engine` (§3.2). Do not add a Stockfish adapter without asking.
+- **Game import:** Chess.com Published Data API and Lichess export API. Initial import is the last
+  100 games in the selected live time controls; a process scheduler resyncs every 30 minutes.
 
 If a task needs a technology not listed here (new SaaS, new datastore, paid API), stop and ask,
 then add it here once decided.
@@ -198,19 +214,19 @@ For non-trivial work (new module, multi-file feature, schema change), the orches
 
 ### Skills to reach for
 
-| Situation | Skill |
-| --- | --- |
-| Nontrivial implementation from a spec | `implement` |
-| New logic, test-first | `tdd` |
-| Module interface / seam / repetition | `codebase-design` |
-| Term, entity, or ADR | `domain-modeling` |
-| Fastify routes, middleware, errors, DB | `nodejs-backend-patterns` |
-| Any `client/` UI | `align-ui` then `frontend-design` |
-| Next.js / React performance | `vercel-react-best-practices` |
-| Auth, input, secrets, OWASP | `security-and-hardening` |
-| Before calling a change done | `code-review` |
-| Hard bug | `diagnosing-bugs` |
-| Discover another skill | `find-skills` |
+| Situation                              | Skill                             |
+| -------------------------------------- | --------------------------------- |
+| Nontrivial implementation from a spec  | `implement`                       |
+| New logic, test-first                  | `tdd`                             |
+| Module interface / seam / repetition   | `codebase-design`                 |
+| Term, entity, or ADR                   | `domain-modeling`                 |
+| Fastify routes, middleware, errors, DB | `nodejs-backend-patterns`         |
+| Any `client/` UI                       | `align-ui` then `frontend-design` |
+| Next.js / React performance            | `vercel-react-best-practices`     |
+| Auth, input, secrets, OWASP            | `security-and-hardening`          |
+| Before calling a change done           | `code-review`                     |
+| Hard bug                               | `diagnosing-bugs`                 |
+| Discover another skill                 | `find-skills`                     |
 
 Default loop: read `ENV.md` + `TODO.md` → confirm scope → implement (TDD where it fits) →
 typecheck + lint + test → review → verify the real flow → update ledgers.

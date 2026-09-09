@@ -1,6 +1,6 @@
 # Modules
 
-Domain folders go here as they are built (`auth`, `games`, `analysis`, `players`, …).
+Domain folders: `auth`, `onboarding`, `games`. Analysis and players come later.
 
 Rules:
 
