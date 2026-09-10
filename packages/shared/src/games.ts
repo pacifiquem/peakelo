@@ -17,6 +17,11 @@ export const publicGameSchema = z.object({
 });
 export type PublicGame = z.infer<typeof publicGameSchema>;
 
+export const publicGameDetailSchema = publicGameSchema.extend({
+  pgn: z.string(),
+});
+export type PublicGameDetail = z.infer<typeof publicGameDetailSchema>;
+
 export const gamesQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),

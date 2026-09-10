@@ -47,7 +47,7 @@ export async function finishOAuth(input: {
   nonce: string | undefined;
   packedState: string | undefined;
   currentUserId: string | null;
-}): Promise<{ token: string; nextPath: '/onboarding' | '/games' }> {
+}): Promise<{ token: string; nextPath: '/onboarding' | '/home' }> {
   if (!input.code || !input.nonce) {
     throw new BadRequestError('OAuth callback was missing code or state');
   }

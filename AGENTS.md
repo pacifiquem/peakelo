@@ -98,7 +98,7 @@ These override convenience, speed of typing, or "I think this is probably fine."
 │   ├── src/lib/              ← logger, cors helpers
 │   ├── src/common/           ← errors, error-handler
 │   ├── src/routes/           ← process-level routes only (health)
-│   ├── src/modules/          ← domain modules as they are built
+│   ├── src/modules/          ← domain modules + cron jobs as they are built
 │   └── prisma/               ← schema placeholder until the first model
 ├── packages/shared/          ← @peakelo/shared — Zod / DTOs / enums / constants (§3.1)
 ├── packages/engine/          ← @peakelo/engine — pure chess rules, Node + browser (§3.2)
@@ -108,6 +108,12 @@ These override convenience, speed of typing, or "I think this is probably fine."
 Workspace packages: `client/`, `server/`, `packages/*`. Build order: `@peakelo/shared` then
 `@peakelo/engine` then server then client. Domain HTTP modules belong under
 `server/src/modules/` — do not pile product handlers into `routes/`. Routes stay thin.
+Interval jobs belong in `server/src/modules/cron/` (register in `jobs.ts`). The job body may
+call into `games` / later domains; do not put `setInterval` in those modules.
+
+After onboarding the default logged-in surface is `/home`. Dashboard IA and empty-state
+contracts live in `docs/adr/0002-logged-in-dashboard.md` through `0007`. Do not invent
+analysis, player types, arrows, or drill positions on those screens.
 
 ### 3.1 `@peakelo/shared` — what goes in
 
@@ -178,8 +184,10 @@ rather than silently deviate, then update this section.
 - **Testing:** **Vitest** on server, shared, and engine.
 - **Formatting & linting:** Prettier at the root; ESLint per package with `eslint-config-prettier`.
 - **Chess rules:** `@peakelo/engine` (§3.2). Do not add a Stockfish adapter without asking.
+- **Board UI:** `@lichess-org/chessground` (Lichess cburnett + green squares). GPL-3.0 — Peakelo
+  stays source-available. Do not replace it with a homemade board.
 - **Game import:** Chess.com Published Data API and Lichess export API. Initial import is the last
-  100 games in the selected live time controls; a process scheduler resyncs every 30 minutes.
+  100 games in the selected live time controls; `cron` (`game-sync`) resyncs every 30 minutes.
 
 If a task needs a technology not listed here (new SaaS, new datastore, paid API), stop and ask,
 then add it here once decided.

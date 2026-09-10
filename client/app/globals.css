@@ -11,6 +11,9 @@
   --color-cyan: #00c2d1;
   --color-gold: #e8b923;
   --color-board: #2a1f14;
+  --color-board-light: #eeeed2;
+  --color-board-dark: #769656;
+  --color-board-last: rgb(155 199 0 / 0.55);
 
   --color-bg-white-0: #fff8ea;
   --color-bg-weak-50: #efe0c4;
@@ -19,7 +22,7 @@
   --color-bg-strong-950: #12100e;
 
   --color-text-strong-950: #12100e;
-  --color-text-sub-600: #5c4d3d;
+  --color-text-sub-600: #3d3228;
   --color-text-soft-400: #8a7762;
   --color-text-white-0: #fff8ea;
   --color-text-disabled-300: #b7a48c;
@@ -58,8 +61,8 @@ body {
 body {
   background-color: var(--color-paper);
   background-image:
-    linear-gradient(rgb(18 16 14 / 4%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(18 16 14 / 4%) 1px, transparent 1px);
+    linear-gradient(rgb(18 16 14 / 2%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(18 16 14 / 2%) 1px, transparent 1px);
   background-size: 32px 32px;
   color: var(--color-text-strong-950);
   font-family: var(--font-sans);

@@ -29,7 +29,7 @@ function JoinInner() {
       return;
     }
     if (user) {
-      window.location.replace(user.onboarding.completed ? '/games' : '/onboarding');
+      window.location.replace(user.onboarding.completed ? '/home' : '/onboarding');
       return;
     }
     if (error) {
