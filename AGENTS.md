@@ -79,6 +79,14 @@ These override convenience, speed of typing, or "I think this is probably fine."
     the only error. Empty states may stay on the page.
 18. **Latest compatible dependencies.** Target the newest version that works with this stack. Pin
     an older line only when the latest would break immediately (for example Prisma 7+ vs 6.x).
+19. **No invented chess.** Anything that names or defines a part of the game must match what
+    Chess.com, Lichess, or FIDE already published — not an agent’s private heuristic. That includes
+    the Laws of Chess, move-annotation labels (brilliant / miss / mistake / blunder / …), opening
+    names and book lines, time-control names, result strings, eval conventions, and engine-line
+    vocabulary. Before writing or changing that code, look up the official definition online
+    (Chess.com Help, Lichess source or docs, FIDE Laws / Handbook). If those sources disagree or
+    none exists, stop and ask. Do not ship a homemade meaning for a term the community already
+    defined.
 
 ---
 
@@ -113,8 +121,9 @@ call into `games` / later domains; do not put `setInterval` in those modules.
 
 After onboarding the default logged-in surface is `/home`. Dashboard IA and empty-state
 contracts live in `docs/adr/0002-logged-in-dashboard.md` through `0007`. The bare engine
-snapshot (ADR 0008) may appear on `/profile` and as a pass-progress line in chrome. Do not
-invent player types, arrows, or drill positions.
+snapshot (ADR 0008) may appear on `/profile` and as a pass-progress line in chrome. On
+`/games/[id]`, an eval bar, best-move arrow, and ply glyphs are allowed only from stored
+engine analysis (ADR 0005). Do not invent player types, arrows, evals, or drill positions.
 
 ### 3.1 `@peakelo/shared` — what goes in
 
@@ -184,7 +193,7 @@ rather than silently deviate, then update this section.
 - **Logging:** **Pino** on the server. No `console.log` in server code.
 - **Testing:** **Vitest** on server, shared, and engine.
 - **Formatting & linting:** Prettier at the root; ESLint per package with `eslint-config-prettier`.
-- **Chess rules:** `@peakelo/engine` (§3.2). Pure functions only.
+- **Chess rules:** `@peakelo/engine` (§3.2). Pure functions only. Definitions follow §2.19.
 - **Engine adapter:** spawn **Stockfish** (UCI) from `server/src/modules/engine/`. Never put the
   binary or a WASM loader in `@peakelo/engine`. Default depth 12, 1 thread, MultiPV 3. Path is
   `STOCKFISH_PATH` (default `stockfish`). Tests inject a fake adapter.
@@ -328,5 +337,7 @@ Categories do not overlap.
 - Destructive or hard-to-reverse change (schema drop, force-push).
 - Two implementations that materially affect future work.
 - The "implementation" would be scaffolding or weak intelligence.
+- Chess.com, Lichess, and FIDE disagree on a term you are about to encode, or no official
+  definition exists (§2.19).
 - About to `git commit` / `git push` / open or merge a PR.
 - This file conflicts with an explicit user instruction in the moment.

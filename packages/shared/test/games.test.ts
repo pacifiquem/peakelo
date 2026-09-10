@@ -48,7 +48,9 @@ describe('publicGameDetailSchema', () => {
       result: '0-1',
       userColor: 'black',
       pgn: '1. e4 e5 *',
+      analysis: { status: 'none', plies: null },
     });
     expect(parsed.pgn).toContain('e4');
+    expect(parsed.analysis.status).toBe('none');
   });
 });

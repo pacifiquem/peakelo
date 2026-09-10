@@ -27,18 +27,25 @@ in `docs/design/ui.md`.
 
 Real metadata and PGN from `GET /games/:id`. The board is official Lichess **Chessground**
 (cburnett pieces, green squares). A move list lets the player walk the game: click a SAN, use
-the arrows, or press ← → Home End. The board orients from the player’s color. No eval bar, no
-invented arrows, no writeup.
+the arrows, or press ← → Home End. The board orients from the player’s color.
+
+When this game’s `GameAnalysis` is **ready**, the desk also shows engine-backed (not invented)
+tools: an eval bar + score, Remix icons on the scoresheet, and an optional arrow for the
+engine’s next best move. Labels follow Chess.com Classification V2 (expected-points cutoffs
+plus their specials): Brilliant is a sound piece sacrifice that is not already winning and
+does not leave you worse; Miss is failing to convert a winning engine line into a win.
+No analysis → no bar, no icons, no arrow.
 
 ### Later
 
 - Quiet board + move list as navigation (shipped).
-- Writeup: why they played it, what they overlooked, 2–3 engine lines as stories, arrows on the
-  current ply.
+- Engine bar / glyphs / best-move arrow from the pass (shipped when the pass is ready).
+- Writeup: why they played it, what they overlooked, 2–3 engine lines as stories.
 - Clock callouts only when the clock decided the game.
 - Footer: this pattern is [named mistake] → `/profile#mistakes`; Drill this → `/drills/[id]`.
-- `?ply=` deep link from profile and drills.
+- `?ply=` deep link from profile and drills (shipped).
 - Analysis plan queued: “This game is in the pass.”
 - No plan: “One game writeup is $1.22.” → `/billing?intent=game&gameId=`.
 
-Never: eval bar, accuracy %, Brilliant/Great/Book, PV dump without sentences.
+Never: invented eval, dummy arrows, accuracy % as the story, PV dump without sentences, a
+writeup voice on this page.

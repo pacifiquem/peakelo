@@ -76,12 +76,18 @@ function GameLesson({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) 
               title={`${game.whiteName} vs ${game.blackName}`}
             >
               {game.result} · {new Date(game.playedAt).toLocaleString()}. The scoresheet is real.
-              The lesson is not written yet.
+              {game.analysis.status === 'ready'
+                ? ' The bar and glyphs are from the engine pass.'
+                : ' Engine marks wait for the pass.'}
             </PageIntro>
-            <GameEditor pgn={game.pgn} orientation={game.userColor} />
+            <GameEditor
+              pgn={game.pgn}
+              orientation={game.userColor}
+              analysis={game.analysis}
+            />
             <EmptyPlate folio="Lesson" title="The lesson is not written yet.">
-              You can walk the moves. We do not caption a game we have not read — no eval bar, no
-              accuracy number, no invented arrows.
+              The bar, glyphs, and best-move arrow come from the engine pass. The human writeup
+              is still later.
             </EmptyPlate>
           </>
         ) : null}
@@ -99,7 +105,7 @@ function GameLesson({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) 
             },
             {
               title: 'Arrows',
-              detail: 'Tied to the ply you are on. Deep link ?ply= from profile and drills.',
+              detail: 'Best-move arrow is the engine line for the side to move. Toggle it on.',
             },
             {
               title: 'Footer',

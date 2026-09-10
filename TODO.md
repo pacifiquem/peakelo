@@ -6,7 +6,7 @@
 
 ## Next up
 
-- [ ] Game analysis pipeline (layout + ADR 0005 ready)
+- [ ] Game writeup (eval bar / glyphs / best-move arrow ship from the pass)
 - [ ] Player profile writeup (bare snapshot first — ADR 0008)
 - [ ] Payments (14.99 / 34.99 / 1.22) — stop and ask for processor (layout + ADR 0007 ready)
 - [ ] Official Chess.com OAuth once they issue endpoints (button is wired, creds are not)
