@@ -2,13 +2,13 @@
 
 ## In progress
 
-- [ ] Live Google OAuth + a real import of your own games (needs your credentials)
+- [x] Live Google OAuth + a real import of your own games (needs your credentials)
 
 ## Next up
 
-- [ ] Game analysis pipeline
-- [ ] Player profile + human-language writeup
-- [ ] Payments (14.99 / 34.99 / 1.22) — stop and ask for processor
+- [ ] Game analysis pipeline (layout + ADR 0005 ready)
+- [ ] Player profile + human-language writeup (layout + ADR 0004 ready)
+- [ ] Payments (14.99 / 34.99 / 1.22) — stop and ask for processor (layout + ADR 0007 ready)
 - [ ] Official Chess.com OAuth once they issue endpoints (button is wired, creds are not)
 
 ## Done
@@ -25,3 +25,8 @@
 - [x] Dual Chess.com + Lichess import with source switcher (Pro later — ADR 0001)
 - [x] Import ticker (Fetching / Indexing / …), visible disabled buttons, official green Chess.com pawn
 - [x] Onboarding layout: one scoresheet per step instead of a pile of boxes
+- [x] Game sync lives in `server/src/modules/cron/` (shared scheduler + `game-sync` job)
+- [x] Logged-in dashboard shell + empty plates (ADRs 0002–0007)
+- [x] Dashboard contrast, table columns, labeled chrome, checkout warning
+- [x] Settings in the rail (Account + Billing); Lichess-green game navigator
+- [x] Official Chessground board (cburnett) on `/games/[id]`

@@ -51,7 +51,7 @@ export function OnboardingFlow() {
 
   useEffect(() => {
     if (user === null) router.replace('/join');
-    if (user?.onboarding.completed) router.replace('/games');
+    if (user?.onboarding.completed) router.replace('/home');
   }, [user, router]);
 
   useEffect(() => {

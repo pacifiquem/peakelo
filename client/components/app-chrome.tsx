@@ -33,7 +33,7 @@ export function AppChrome({
       <header className="border-b-2 border-ink bg-bg-white-0">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3">
           <Link
-            href={user.onboarding.completed ? '/games' : '/onboarding'}
+            href={user.onboarding.completed ? '/home' : '/onboarding'}
             className="font-display text-lg font-extrabold"
           >
             Peakelo

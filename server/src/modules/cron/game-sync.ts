@@ -1,9 +1,8 @@
 import { GAME_SYNC_INTERVAL_MS } from '@peakelo/shared';
 import { getPrisma } from '../../db/prisma';
 import { logger } from '../../lib/logger';
-import { persistGames, pullGames } from './import-games';
-
-let timer: NodeJS.Timeout | null = null;
+import { persistGames, pullGames } from '../games/import-games';
+import type { CronJob } from './scheduler';
 
 export async function syncDueAccounts(now = new Date()): Promise<number> {
   const prisma = getPrisma();
@@ -59,18 +58,8 @@ export async function syncDueAccounts(now = new Date()): Promise<number> {
   return synced;
 }
 
-export function startGameSyncScheduler(): void {
-  if (timer) return;
-  timer = setInterval(() => {
-    void syncDueAccounts().catch((error) => {
-      logger.error({ err: error }, 'game sync tick failed');
-    });
-  }, GAME_SYNC_INTERVAL_MS);
-  timer.unref();
-}
-
-export function stopGameSyncScheduler(): void {
-  if (!timer) return;
-  clearInterval(timer);
-  timer = null;
-}
+export const gameSyncJob: CronJob = {
+  name: 'game-sync',
+  intervalMs: GAME_SYNC_INTERVAL_MS,
+  run: syncDueAccounts,
+};

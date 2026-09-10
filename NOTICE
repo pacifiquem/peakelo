@@ -1,0 +1,4 @@
+Peakelo includes Lichess Chessground (`@lichess-org/chessground`) and chessops
+(`chessops`). Both are licensed under the GNU GPL v3 (or later). Because of that,
+Peakelo itself is distributed under GPL-3.0-or-later. See each package for the
+full license text.

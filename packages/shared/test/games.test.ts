@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gamesQuerySchema, publicGameSchema } from '../src/games';
+import { gamesQuerySchema, publicGameDetailSchema, publicGameSchema } from '../src/games';
 
 describe('gamesQuerySchema', () => {
   it('defaults pagination', () => {
@@ -32,5 +32,23 @@ describe('publicGameSchema', () => {
       userColor: 'white',
     });
     expect(parsed.userColor).toBe('white');
+  });
+});
+
+describe('publicGameDetailSchema', () => {
+  it('requires a pgn on the single-game payload', () => {
+    const parsed = publicGameDetailSchema.parse({
+      id: 'g1',
+      source: 'lichess',
+      externalId: 'abc',
+      timeControl: 'blitz',
+      playedAt: '2026-09-01T12:00:00.000Z',
+      whiteName: 'alice',
+      blackName: 'bob',
+      result: '0-1',
+      userColor: 'black',
+      pgn: '1. e4 e5 *',
+    });
+    expect(parsed.pgn).toContain('e4');
   });
 });

@@ -50,6 +50,6 @@ export function toPublicUser(user: UserWithRelations): PublicUser {
   };
 }
 
-export function postAuthPath(user: UserWithRelations): '/onboarding' | '/games' {
-  return toPublicUser(user).onboarding.completed ? '/games' : '/onboarding';
+export function postAuthPath(user: UserWithRelations): '/onboarding' | '/home' {
+  return toPublicUser(user).onboarding.completed ? '/home' : '/onboarding';
 }

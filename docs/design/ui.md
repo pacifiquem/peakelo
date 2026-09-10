@@ -37,10 +37,13 @@ Defined in `client/app/globals.css` (`@theme`). Use these names, do not invent h
 | --- | --- | --- | --- |
 | Paper | `--color-paper` | `#F4E8D0` | Page ground |
 | Ink | `--color-ink` | `#12100E` | Borders, type, shadows |
+| Sub text | `--color-text-sub-600` | `#3D3228` | Subtitles and secondary labels on paper |
 | Magenta | `--color-magenta` / `primary-base` | `#E21B70` | Primary CTA, "your move" |
 | Cyan | `--color-cyan` / `information-base` | `#00C2D1` | Opponent / info / links |
 | Gold | `--color-gold` / `warning-base` | `#E8B923` | Advantage, streak, paid |
 | Board | `--color-board` | `#2A1F14` | Dark squares, footer |
+| Board light / dark | `--color-board-light` / `--color-board-dark` | `#EEEED2` / `#769656` | Lichess-green board squares |
+| Last move | `--color-board-last` | green wash | Highlight the ply just played |
 
 Shadows are **offsets**, not blurs: `3px 3px 0` / `4px 4px 0` / `6px 6px 0` in ink.
 
@@ -78,6 +81,11 @@ asked for a move replay.
 
 - Contrast against paper must pass WCAG AA. Magenta-on-paper and cyan-on-paper are for large
   type or buttons with ink borders, not 12px captions.
+- Teaching text sits on a solid paper/white well. Do not let the page grid run through
+  letters. Folios, table headers, and subtitles use ink or `text-sub-600` (`#3D3228`), not
+  the softer disabled gray.
+- Magenta is the selected / primary accent (nav, filled filters, primary CTAs). Do not ship
+  icon-only chrome; source switcher and account/billing need a visible word.
 - Visible focus: ink ring, 2px, offset.
 - Board and arrows need a non-color channel (labels, patterns) for color-blind players.
 
