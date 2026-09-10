@@ -112,8 +112,9 @@ Interval jobs belong in `server/src/modules/cron/` (register in `jobs.ts`). The 
 call into `games` / later domains; do not put `setInterval` in those modules.
 
 After onboarding the default logged-in surface is `/home`. Dashboard IA and empty-state
-contracts live in `docs/adr/0002-logged-in-dashboard.md` through `0007`. Do not invent
-analysis, player types, arrows, or drill positions on those screens.
+contracts live in `docs/adr/0002-logged-in-dashboard.md` through `0007`. The bare engine
+snapshot (ADR 0008) may appear on `/profile` and as a pass-progress line in chrome. Do not
+invent player types, arrows, or drill positions.
 
 ### 3.1 `@peakelo/shared` — what goes in
 
@@ -169,10 +170,10 @@ rather than silently deviate, then update this section.
 - **Frontend:** Next.js App Router in `client/`. **AlignUI** (copy-paste components, Tailwind v4,
   Remix Icon). Visual language: polished neo-brutalism with restrained vaporwave / Y2K — see
   `docs/design/ui.md`. Mandatory skill: `align-ui`.
-- **Backend:** Node.js + **Fastify**. **SWC** transpiles (`@swc/cli`, `@swc-node/register`); `tsc`
-  only type-checks.
-- **Database:** Postgres + **Prisma**. `DATABASE_URL` (pooled) vs `DIRECT_URL` (migrate). First
-  models are `User`, `AuthAccount`, `Session`, `Onboarding`, `Game`, `SyncState`.
+- **Backend:** Node.js + **Fastify**. **SWC** transpiles production (`@swc/cli`). Dev uses `tsx`
+  (not `@swc-node/register`) so `chessops` ESM loads. `tsc` only type-checks.
+- **Database:** Postgres + **Prisma**. `DATABASE_URL` (pooled) vs `DIRECT_URL` (migrate). Models:
+  `User`, `AuthAccount`, `Session`, `Onboarding`, `Game`, `SyncState`, `EnginePass`, `GameAnalysis`.
 - **Auth:** Google, Lichess, and Chess.com OAuth only. No passwords. Sessions are httpOnly cookies
   (`peakelo_session`). Chess.com OAuth requires Chess.com approval — see
   [`docs/setup/oauth.md`](./docs/setup/oauth.md). Until those creds exist, Chess.com is a linked
@@ -183,7 +184,10 @@ rather than silently deviate, then update this section.
 - **Logging:** **Pino** on the server. No `console.log` in server code.
 - **Testing:** **Vitest** on server, shared, and engine.
 - **Formatting & linting:** Prettier at the root; ESLint per package with `eslint-config-prettier`.
-- **Chess rules:** `@peakelo/engine` (§3.2). Do not add a Stockfish adapter without asking.
+- **Chess rules:** `@peakelo/engine` (§3.2). Pure functions only.
+- **Engine adapter:** spawn **Stockfish** (UCI) from `server/src/modules/engine/`. Never put the
+  binary or a WASM loader in `@peakelo/engine`. Default depth 12, 1 thread, MultiPV 3. Path is
+  `STOCKFISH_PATH` (default `stockfish`). Tests inject a fake adapter.
 - **Board UI:** `@lichess-org/chessground` (Lichess cburnett + green squares). GPL-3.0 — Peakelo
   stays source-available. Do not replace it with a homemade board.
 - **Game import:** Chess.com Published Data API and Lichess export API. Initial import is the last

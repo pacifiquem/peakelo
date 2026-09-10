@@ -19,3 +19,19 @@ _Avoid_: origin, site
 **Pro**:
 The paid plan that will later include training extras such as more than one chess platform on the same player.
 _Avoid_: premium, plus, enterprise
+
+**Engine pass**:
+Background work that runs Stockfish on every imported ply and writes a bare snapshot.
+_Avoid_: analysis job, scan, pipeline
+
+**Bare profile**:
+The raw engine snapshot for a player — counts, ACPL, openings, structures, overlooked tags, citations. Not a writeup.
+_Avoid_: player type, report, essay, headline
+
+**Ply analysis**:
+One move of one game with evals, CPL, clocks, opening, and overlooked tags.
+_Avoid_: annotation, comment
+
+**Overlooked**:
+What the board and the engine line say the player missed on that ply (hanging piece, combination, …).
+_Avoid_: reason, why (as prose), motif guess from SAN text

@@ -15,8 +15,10 @@ import {
 import { gameSourcesFromAccounts, type GameSource, type PublicUser } from '@peakelo/shared';
 
 import { ChesscomLogo, LichessLogo } from '@/components/brand/provider-logos';
+import { EnginePassBanner } from '@/components/dashboard/engine-pass-banner';
 import * as Button from '@/components/ui/button';
 import { addSourceHref, api } from '@/lib/api';
+import { isEnginePassActive } from '@/lib/engine-pass';
 import { cn } from '@/utils/cn';
 
 const NAV = [
@@ -146,6 +148,9 @@ export function AppShell({
             </div>
           </div>
         </header>
+        {isEnginePassActive(user.enginePass.status) ? (
+          <EnginePassBanner pass={user.enginePass} />
+        ) : null}
         {children}
       </div>
 

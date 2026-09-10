@@ -7,7 +7,7 @@
 ## Next up
 
 - [ ] Game analysis pipeline (layout + ADR 0005 ready)
-- [ ] Player profile + human-language writeup (layout + ADR 0004 ready)
+- [ ] Player profile writeup (bare snapshot first — ADR 0008)
 - [ ] Payments (14.99 / 34.99 / 1.22) — stop and ask for processor (layout + ADR 0007 ready)
 - [ ] Official Chess.com OAuth once they issue endpoints (button is wired, creds are not)
 
@@ -30,3 +30,4 @@
 - [x] Dashboard contrast, table columns, labeled chrome, checkout warning
 - [x] Settings in the rail (Account + Billing); Lichess-green game navigator
 - [x] Official Chessground board (cburnett) on `/games/[id]`
+- [x] Bare engine pass (Stockfish adapter + cron worker + Lichess opening book + raw `/profile`)

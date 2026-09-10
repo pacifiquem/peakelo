@@ -1,3 +1,4 @@
+import { DEFAULT_ENGINE_DEPTH, DEFAULT_ENGINE_THREADS } from '@peakelo/shared';
 import { z } from 'zod';
 import { parseCorsOrigins } from '../lib/cors-origins';
 
@@ -35,6 +36,18 @@ const envSchema = z.object({
   CHESSCOM_USERINFO_URL: optionalUrl,
   CHESSCOM_SCOPE: optionalText,
   CHESSCOM_USER_AGENT: z.string().min(1).default('Peakelo/0.0.0'),
+  STOCKFISH_PATH: z.preprocess(
+    (value) => (value === '' || value === undefined ? undefined : value),
+    z.string().min(1).default('stockfish'),
+  ),
+  ENGINE_DEPTH: z.preprocess(
+    (value) => (value === '' || value === undefined ? undefined : value),
+    z.coerce.number().int().positive().default(DEFAULT_ENGINE_DEPTH),
+  ),
+  ENGINE_THREADS: z.preprocess(
+    (value) => (value === '' || value === undefined ? undefined : value),
+    z.coerce.number().int().positive().default(DEFAULT_ENGINE_THREADS),
+  ),
 });
 
 export type Env = z.infer<typeof envSchema> & {

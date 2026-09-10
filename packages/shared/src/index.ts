@@ -5,3 +5,4 @@ export * from './enums';
 export * from './games';
 export * from './onboarding';
 export * from './pagination';
+export * from './profile';

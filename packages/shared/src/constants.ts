@@ -12,6 +12,10 @@ export const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 
 export const INITIAL_IMPORT_LIMIT = 100;
 export const GAME_SYNC_INTERVAL_MS = 30 * 60 * 1000;
+export const ENGINE_PASS_INTERVAL_MS = 2_000;
+export const DEFAULT_ENGINE_DEPTH = 12;
+export const DEFAULT_ENGINE_THREADS = 1;
+export const DEFAULT_ENGINE_MULTIPV = 3;
 export const FOCUS_NOTE_MAX_LENGTH = 2000;
 export const CHESSCOM_USERNAME_MIN = 3;
 export const CHESSCOM_USERNAME_MAX = 25;

@@ -42,6 +42,21 @@ enum ImportStatus {
   failed
 }
 
+enum EnginePassStatus {
+  idle
+  queued
+  running
+  ready
+  failed
+}
+
+enum GameAnalysisStatus {
+  pending
+  running
+  ready
+  failed
+}
+
 model User {
   id          String   @id @default(cuid())
   email       String?  @unique
@@ -55,6 +70,8 @@ model User {
   onboarding  Onboarding?
   games       Game[]
   syncStates  SyncState[]
+  enginePass  EnginePass?
+  analyses    GameAnalysis[]
 }
 
 model AuthAccount {
@@ -120,11 +137,53 @@ model Game {
   pgn          String
   createdAt    DateTime    @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis GameAnalysis?
 
   @@unique([userId, source, externalId])
   @@index([userId, playedAt])
   @@index([userId, timeControl])
+}
+
+model EnginePass {
+  userId        String           @id
+  status        EnginePassStatus @default(idle)
+  gamesQueued   Int              @default(0)
+  gamesReady    Int              @default(0)
+  gamesFailed   Int              @default(0)
+  movesAnalyzed Int              @default(0)
+  movesTotal    Int              @default(0)
+  depth         Int              @default(12)
+  error         String?
+  startedAt     DateTime?
+  readyAt       DateTime?
+  snapshot      Json?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GameAnalysis {
+  id            String             @id @default(cuid())
+  gameId        String             @unique
+  userId        String
+  status        GameAnalysisStatus @default(pending)
+  depth         Int                @default(12)
+  analyzedPlies Int                @default(0)
+  totalPlies    Int                @default(0)
+  playerAcpl    Float?
+  error         String?
+  plies         Json?
+  analyzedAt    DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([status])
 }
 
 model SyncState {

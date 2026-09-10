@@ -19,3 +19,5 @@ strictPeerDependencies: false
 autoInstallPeers: true
 minimumReleaseAge: 0
 dangerouslyAllowAllBuilds: true
+patchedDependencies:
+  chessops@0.15.1: patches/chessops@0.15.1.patch

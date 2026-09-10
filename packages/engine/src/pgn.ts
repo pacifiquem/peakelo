@@ -3,6 +3,7 @@ import { makeFen } from 'chessops/fen';
 import { parsePgn, startingPosition } from 'chessops/pgn';
 import { parseSan } from 'chessops/san';
 
+import { parseClkComment, parseTimeControlHeader } from './clocks';
 import { FILES, RANKS, type Color, type Square } from './square';
 
 export const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -19,12 +20,16 @@ export type ReplayPly = {
   ply: number;
   san: string;
   fen: string;
+  fenBefore: string;
   uci: string;
+  clockAfterMs: number | null;
 };
 
 export type ReplayedGame = {
   startFen: string;
   plies: ReplayPly[];
+  incrementMs: number;
+  baseTimeMs: number | null;
 };
 
 const ROLE_FROM_LETTER: Record<string, PieceRole> = {
@@ -39,10 +44,11 @@ const ROLE_FROM_LETTER: Record<string, PieceRole> = {
 export function replayPgn(pgn: string): ReplayedGame {
   const games = parsePgn(pgn.trim());
   const game = games[0];
-  if (!game) return { startFen: START_FEN, plies: [] };
+  if (!game) return { startFen: START_FEN, plies: [], incrementMs: 0, baseTimeMs: null };
 
   const started = startingPosition(game.headers);
-  if (started.isErr) return { startFen: START_FEN, plies: [] };
+  if (started.isErr) return { startFen: START_FEN, plies: [], incrementMs: 0, baseTimeMs: null };
+  const clock = parseTimeControlHeader(game.headers.get('TimeControl'));
 
   const pos = started.value;
   const startFen = makeFen(pos.toSetup());
@@ -51,12 +57,19 @@ export function replayPgn(pgn: string): ReplayedGame {
   for (const node of game.moves.mainline()) {
     const move = parseSan(pos, node.san);
     if (!move) break;
+    const fenBefore = makeFen(pos.toSetup());
     const uci = makeUci(move);
     pos.play(move);
     ply += 1;
-    plies.push({ ply, san: node.san, fen: makeFen(pos.toSetup()), uci });
+    const clockAfterMs = parseClkComment((node.comments ?? []).join(' '));
+    plies.push({ ply, san: node.san, fen: makeFen(pos.toSetup()), fenBefore, uci, clockAfterMs });
   }
-  return { startFen, plies };
+  return {
+    startFen,
+    plies,
+    incrementMs: clock?.incrementMs ?? 0,
+    baseTimeMs: clock?.baseMs ?? null,
+  };
 }
 
 export function piecesFromFen(fen: string): BoardPiece[] {

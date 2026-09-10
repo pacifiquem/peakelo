@@ -13,6 +13,7 @@ import { PlannedList } from '@/components/dashboard/planned-list';
 import * as Button from '@/components/ui/button';
 import { showError } from '@/components/ui/toast';
 import { api } from '@/lib/api';
+import { isEnginePassActive, passGameTotal } from '@/lib/engine-pass';
 
 export default function HomePage() {
   return (
@@ -36,6 +37,7 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
   }, [source]);
 
   const waiting = games?.data ?? [];
+  const plate = plate00(user, waiting.length);
 
   return (
     <AppShell user={user}>
@@ -45,25 +47,8 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
           read your games.
         </PageIntro>
 
-        <EmptyPlate
-          folio="Plate 00"
-          title={
-            waiting.length > 0
-              ? 'Your games are in.'
-              : 'Nothing to coach yet.'
-          }
-        >
-          {waiting.length > 0 ? (
-            <p>
-              We have not written who you are yet — that takes a full engine pass, not a glance at
-              the scoresheet.
-            </p>
-          ) : (
-            <p>
-              Play a rated blitz, rapid, or bullet game on the account you linked. New ones land
-              here about every 30 minutes.
-            </p>
-          )}
+        <EmptyPlate folio="Plate 00" title={plate.title}>
+          {plate.body}
         </EmptyPlate>
 
         {waiting.length > 0 ? (
@@ -126,4 +111,74 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
       </DashboardWell>
     </AppShell>
   );
+}
+
+function plate00(user: Parameters<typeof AppShell>[0]['user'], waiting: number) {
+  const pass = user.enginePass;
+
+  if (isEnginePassActive(pass.status)) {
+    const total = passGameTotal(pass);
+    return {
+      title: 'The engine is reading your games.',
+      body:
+        total > 0 ? (
+          <p>
+            Reading every move of the last {total} games. This page stays honest until that pass
+            finishes.
+          </p>
+        ) : (
+          <p>
+            Every imported move is going through the engine. This page stays honest until that pass
+            finishes.
+          </p>
+        ),
+    };
+  }
+
+  if (pass.status === 'ready') {
+    return {
+      title: waiting > 0 ? 'Your games are in.' : 'Snapshot is ready.',
+      body: (
+        <p>
+          The raw snapshot is on your{' '}
+          <Link
+            href="/profile"
+            className="font-display font-bold underline decoration-2 underline-offset-4"
+          >
+            profile
+          </Link>
+          . The writeup is not written yet.
+        </p>
+      ),
+    };
+  }
+
+  if (pass.status === 'failed') {
+    return {
+      title: 'The engine pass failed.',
+      body: <p>{pass.error ?? 'The snapshot did not finish. Open profile for the last counts.'}</p>,
+    };
+  }
+
+  if (waiting > 0) {
+    return {
+      title: 'Your games are in.',
+      body: (
+        <p>
+          We have not written who you are yet — that takes a full engine pass, not a glance at the
+          scoresheet.
+        </p>
+      ),
+    };
+  }
+
+  return {
+    title: 'Nothing to coach yet.',
+    body: (
+      <p>
+        Play a rated blitz, rapid, or bullet game on the account you linked. New ones land here
+        about every 30 minutes.
+      </p>
+    ),
+  };
 }

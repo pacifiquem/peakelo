@@ -4,6 +4,7 @@ import { getPrisma } from '../../db/prisma';
 import { decryptSecret } from '../../lib/crypto';
 import { logger } from '../../lib/logger';
 import type { PlatformGame } from './classify';
+import { queueEnginePass } from '../profile/service';
 import { fetchChesscomGames } from './platforms/chesscom';
 import { fetchLichessGames } from './platforms/lichess';
 
@@ -117,6 +118,7 @@ export async function importLinkedSources(input: {
         accessTokenEnc: account.accessTokenEnc,
       });
       await persistGames(input.userId, source, account.username, games);
+      await queueEnginePass(input.userId);
       importedCount += games.length;
       const newest = games[0]?.playedAt ?? null;
       await prisma.syncState.upsert({

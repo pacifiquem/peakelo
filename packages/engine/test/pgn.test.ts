@@ -20,10 +20,27 @@ describe('replayPgn', () => {
 1. e4 {[%clk 0:10:00]} e5 {[%clk 0:10:00]} 1-0`;
     const replayed = replayPgn(pgn);
     expect(replayed.plies.map((ply) => ply.san)).toEqual(['e4', 'e5']);
+    expect(replayed.plies[0]?.clockAfterMs).toBe(10 * 60 * 1000);
+    expect(replayed.plies[1]?.clockAfterMs).toBe(10 * 60 * 1000);
+    expect(replayed.plies[0]?.fenBefore).toBe(START_FEN);
+  });
+
+  it('reads increment and base time from TimeControl', () => {
+    const pgn = `[TimeControl "180+2"]
+
+1. e4 e5 1-0`;
+    const replayed = replayPgn(pgn);
+    expect(replayed.baseTimeMs).toBe(180_000);
+    expect(replayed.incrementMs).toBe(2000);
   });
 
   it('returns the start position when the pgn has no legal moves', () => {
-    expect(replayPgn('')).toEqual({ startFen: START_FEN, plies: [] });
+    expect(replayPgn('')).toEqual({
+      startFen: START_FEN,
+      plies: [],
+      incrementMs: 0,
+      baseTimeMs: null,
+    });
     expect(replayPgn('not a game').plies).toEqual([]);
   });
 });

@@ -8,6 +8,14 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./openings": {
+      "types": "./src/openings/lookup.ts",
+      "default": "./src/openings/lookup.ts"
+    },
+    "./pass": {
+      "types": "./src/pass/index.ts",
+      "default": "./src/pass/index.ts"
     }
   },
   "scripts": {
@@ -26,6 +34,7 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
+    "@peakelo/shared": "workspace:*",
     "chessops": "^0.15.1"
   }
 }

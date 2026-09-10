@@ -3,7 +3,9 @@ import { env } from './config/env';
 import { disconnectPrisma } from './db/prisma';
 import { logger } from './lib/logger';
 import { startCron, stopCron } from './modules/cron';
+import { closeDefaultAdapter } from './modules/engine';
 import { recoverInterruptedImports } from './modules/games/import-games';
+import { recoverInterruptedEnginePasses } from './modules/profile/service';
 
 const app = buildApp();
 
@@ -17,6 +19,10 @@ async function start() {
     const recovered = await recoverInterruptedImports();
     if (recovered > 0) {
       logger.warn({ recovered }, 'marked interrupted imports as failed');
+    }
+    const recoveredPasses = await recoverInterruptedEnginePasses();
+    if (recoveredPasses > 0) {
+      logger.warn({ recovered: recoveredPasses }, 'requeued interrupted engine analyses');
     }
     startCron();
     logger.info(`server listening on http://${env.HOST}:${env.PORT}`);
@@ -34,6 +40,7 @@ async function shutdown(signal: string) {
   logger.info(`received ${signal}, shutting down gracefully`);
   stopCron();
   try {
+    await closeDefaultAdapter();
     await app.close();
     await disconnectPrisma();
   } catch (error) {

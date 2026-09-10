@@ -2,6 +2,7 @@ import { GAME_SYNC_INTERVAL_MS } from '@peakelo/shared';
 import { getPrisma } from '../../db/prisma';
 import { logger } from '../../lib/logger';
 import { persistGames, pullGames } from '../games/import-games';
+import { queueEnginePass } from '../profile/service';
 import type { CronJob } from './scheduler';
 
 export async function syncDueAccounts(now = new Date()): Promise<number> {
@@ -35,6 +36,7 @@ export async function syncDueAccounts(now = new Date()): Promise<number> {
         accessTokenEnc: account.accessTokenEnc,
       });
       await persistGames(row.userId, row.source, account.username, games);
+      await queueEnginePass(row.userId);
       const newest = games[0]?.playedAt ?? row.lastGamePlayedAt ?? null;
       await prisma.syncState.update({
         where: { id: row.id },

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { authProviderSchema, gameSourceSchema } from './enums';
 import { onboardingStateSchema } from './onboarding';
+import { enginePassSchema } from './profile';
 
 export const publicAccountSchema = z.object({
   provider: authProviderSchema,
@@ -16,6 +17,7 @@ export const publicUserSchema = z.object({
   accounts: z.array(publicAccountSchema),
   gameSources: z.array(gameSourceSchema),
   onboarding: onboardingStateSchema,
+  enginePass: enginePassSchema,
 });
 export type PublicUser = z.infer<typeof publicUserSchema>;
 

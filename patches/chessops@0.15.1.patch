@@ -1,0 +1,28 @@
+diff --git a/package.json b/package.json
+index 5ab1dd79034082b1ff5cbc69ecc0596dc9bea140..c272065f619c8a9a792d009dc9bbbbe19c8299b3 100644
+--- a/package.json
++++ b/package.json
+@@ -16,7 +16,7 @@
+   "license": "GPL-3.0-or-later",
+   "type": "module",
+   "module": "dist/esm/index.js",
+-  "main": "dist/cjs/index.js",
++  "main": "dist/esm/index.js",
+   "types": "index.d.ts",
+   "typesVersions": {
+     "*": {
+@@ -29,12 +29,12 @@
+     ".": {
+       "types": "./dist/types/index.d.ts",
+       "import": "./dist/esm/index.js",
+-      "require": "./dist/cjs/index.js"
++      "require": "./dist/esm/index.js"
+     },
+     "./*": {
+       "types": "./dist/types/*.d.ts",
+       "import": "./dist/esm/*.js",
+-      "require": "./dist/cjs/*.js"
++      "require": "./dist/esm/*.js"
+     }
+   },
+   "sideEffects": false,

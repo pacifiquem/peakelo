@@ -1,6 +1,6 @@
 # Modules
 
-Domain folders: `auth`, `onboarding`, `games`. Process jobs: `cron`. Analysis and players come later.
+Domain folders: `auth`, `onboarding`, `games`, `profile`. Engine adapter: `engine`. Process jobs: `cron`.
 
 Rules:
 

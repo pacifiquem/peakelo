@@ -1,10 +1,12 @@
-import type { AuthAccount, Onboarding, User } from '@prisma/client';
+import type { AuthAccount, EnginePass, Onboarding, User } from '@prisma/client';
 import { gameSourcesFromAccounts, type PublicUser } from '@peakelo/shared';
 import { resolveOnboardingStep } from '../onboarding/step';
+import { toEnginePass } from '../profile/service';
 
 type UserWithRelations = User & {
   accounts: AuthAccount[];
   onboarding: Onboarding | null;
+  enginePass?: EnginePass | null;
 };
 
 export function hasChessPlatform(accounts: AuthAccount[]): boolean {
@@ -47,6 +49,7 @@ export function toPublicUser(user: UserWithRelations): PublicUser {
       importError: onboarding?.importError ?? null,
       hasChessPlatform: chessLinked,
     },
+    enginePass: toEnginePass(user.enginePass ?? null),
   };
 }
 

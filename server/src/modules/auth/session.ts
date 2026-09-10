@@ -37,7 +37,7 @@ export async function loadUserFromToken(token: string | undefined): Promise<Publ
   if (!token) return null;
   const session = await getPrisma().session.findUnique({
     where: { tokenHash: sha256Hex(token) },
-    include: { user: { include: { accounts: true, onboarding: true } } },
+    include: { user: { include: { accounts: true, onboarding: true, enginePass: true } } },
   });
   if (!session || session.expiresAt.getTime() <= Date.now()) {
     if (session) {

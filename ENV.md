@@ -33,6 +33,9 @@ None. Do not put secrets in the repo root.
 | `CHESSCOM_USERINFO_URL`      | to enable Chess.com login | —                                             | Userinfo endpoint Chess.com emails you                  |
 | `CHESSCOM_SCOPE`             | no                        | empty                                         | Space-separated scopes Chess.com specifies              |
 | `CHESSCOM_USER_AGENT`        | yes for Chess.com import  | `Peakelo/0.0.0`                               | PubAPI requires a contact User-Agent                    |
+| `STOCKFISH_PATH`             | no                        | `stockfish` on PATH, else npm `stockfish`     | UCI engine. A `.js` path (npm WASM) is launched with Node. |
+| `ENGINE_DEPTH`               | no                        | `12`                                          | Default search depth for the engine pass                |
+| `ENGINE_THREADS`             | no                        | `1`                                           | Stockfish `Threads`                                     |
 
 Copy `server/.env.example` to `server/.env` for local runs.
 

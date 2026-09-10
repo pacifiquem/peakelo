@@ -5,9 +5,11 @@ claim tied to this player’s games. One page with in-page anchors, not child ro
 
 ## On the desk now
 
-Empty plates that name the sections below. No guessed player type, no ACPL badge, no radar.
+The **bare snapshot** from ADR 0008 once the engine pass is ready: openings, structures,
+mistakes, tactics, and clock tables with citations. A persistent chrome line while the pass
+runs. No guessed player type, no radar, no writeup voice.
 
-## Later (after the engine pass)
+## Later (after the writeup)
 
 In this order, matching the sample writeups:
 
