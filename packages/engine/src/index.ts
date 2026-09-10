@@ -7,3 +7,19 @@ export { cplFromScores, judgmentFromCpl } from './eval';
 export type { EngineLine, EvalScore, Judgment } from './eval';
 export { gamePhase } from './phase';
 export type { Phase } from './phase';
+export {
+  annotatePly,
+  evalAtPly,
+  expectedPointsLost,
+  formatEvalScore,
+  isBrilliant,
+  isMiss,
+  isPieceSacrifice,
+  landedPieceHanging,
+  moverCp,
+  nextBestUci,
+  whiteEvalShare,
+  winPercent,
+  MOVE_ANNOTATIONS,
+} from './annotate';
+export type { MoveAnnotation } from './annotate';

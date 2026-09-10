@@ -1,9 +1,12 @@
 import {
+  analyzedPlySchema,
   paginate,
   paginationQuerySchema,
   type GameSource,
+  type PublicGameAnalysis,
   type TimeControl,
 } from '@peakelo/shared';
+import type { Prisma } from '@prisma/client';
 import { getPrisma } from '../../db/prisma';
 
 export async function listGames(
@@ -33,9 +36,35 @@ export async function listGames(
 }
 
 export async function getGame(userId: string, id: string) {
-  const game = await getPrisma().game.findFirst({ where: { id, userId } });
+  const game = await getPrisma().game.findFirst({
+    where: { id, userId },
+    include: { analysis: true },
+  });
   if (!game) return null;
-  return { ...toPublicGame(game), pgn: game.pgn };
+  return { ...toPublicGame(game), pgn: game.pgn, analysis: toPublicAnalysis(game.analysis) };
+}
+
+function toPublicAnalysis(
+  analysis: {
+    status: string;
+    plies: Prisma.JsonValue | null;
+  } | null,
+): PublicGameAnalysis {
+  if (!analysis) return { status: 'none', plies: null };
+  if (analysis.status === 'ready') {
+    if (analysis.plies == null) return { status: 'ready', plies: [] };
+    const parsed = analyzedPlySchema.array().safeParse(analysis.plies);
+    if (!parsed.success) return { status: 'failed', plies: null };
+    return { status: 'ready', plies: parsed.data };
+  }
+  if (
+    analysis.status === 'pending' ||
+    analysis.status === 'running' ||
+    analysis.status === 'failed'
+  ) {
+    return { status: analysis.status, plies: null };
+  }
+  return { status: 'none', plies: null };
 }
 
 function toPublicGame(game: {
