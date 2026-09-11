@@ -1,8 +1,12 @@
+import { ratingsFromPgn } from '@peakelo/engine';
 import {
   analyzedPlySchema,
+  courseSkillBand,
+  COURSE_SKILL_BAND_LABEL,
   paginate,
   paginationQuerySchema,
   type GameSource,
+  type PlayerRatingContext,
   type PublicGameAnalysis,
   type TimeControl,
 } from '@peakelo/shared';
@@ -41,7 +45,42 @@ export async function getGame(userId: string, id: string) {
     include: { analysis: true },
   });
   if (!game) return null;
-  return { ...toPublicGame(game), pgn: game.pgn, analysis: toPublicAnalysis(game.analysis) };
+  const ratings = resolveGameRatings(game);
+  return {
+    ...toPublicGame(game),
+    pgn: game.pgn,
+    analysis: toPublicAnalysis(game.analysis),
+    playerRating: ratings.player,
+    opponentRating: ratings.opponent,
+  };
+}
+
+export function resolveGameRatings(game: {
+  source: GameSource;
+  timeControl: TimeControl;
+  userColor: string;
+  pgn: string;
+  whiteRating?: number | null;
+  blackRating?: number | null;
+}): { player: PlayerRatingContext | null; opponent: number | null } {
+  const fromPgn = ratingsFromPgn(game.pgn);
+  const white = game.whiteRating ?? fromPgn.white;
+  const black = game.blackRating ?? fromPgn.black;
+  const isBlack = game.userColor === 'black';
+  const playerValue = isBlack ? black : white;
+  const opponent = isBlack ? white : black;
+  if (playerValue == null) return { player: null, opponent };
+  const band = courseSkillBand(playerValue);
+  return {
+    player: {
+      rating: playerValue,
+      source: game.source,
+      timeControl: game.timeControl,
+      band,
+      bandLabel: COURSE_SKILL_BAND_LABEL[band],
+    },
+    opponent,
+  };
 }
 
 function toPublicAnalysis(

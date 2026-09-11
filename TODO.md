@@ -2,11 +2,12 @@
 
 ## In progress
 
-- [x] Live Google OAuth + a real import of your own games (needs your credentials)
+- [ ] Live Opus lesson on `/games/[id]` once `ANTHROPIC_API_KEY` is in `server/.env` (UI + routes are wired)
+- [ ] Re-import / next sync to persist Elo on older games (PGN headers still work today)
+- [ ] Position-tagged GM quotes still need a real Chess.com/Lichess game URL; teaching beats (1,104) already feed the coach voice
 
 ## Next up
 
-- [ ] Game writeup (eval bar / glyphs / best-move arrow ship from the pass)
 - [ ] Player profile writeup (bare snapshot first — ADR 0008)
 - [ ] Payments (14.99 / 34.99 / 1.22) — stop and ask for processor (layout + ADR 0007 ready)
 - [ ] Official Chess.com OAuth once they issue endpoints (button is wired, creds are not)
@@ -32,3 +33,7 @@
 - [x] Official Chessground board (cburnett) on `/games/[id]`
 - [x] Bare engine pass (Stockfish adapter + cron worker + Lichess opening book + raw `/profile`)
 - [x] Scoresheet glyphs: Chess.com Classification V2 (Great / Excellent / Book + published EPL table; ADR 0009)
+- [x] Live Google OAuth + a real import of your own games (needs your credentials)
+- [x] Instructive lesson backend (ADR 0010): `POST /games/:id/lesson` + `/ask`, Mastra + Claude Opus 4.6, `GameLesson` cache, slow-run teaching beats
+- [x] Course skill range + whole-game brief before ply lessons (ADR 0011)
+- [x] Slow-run fetch: 184/184 transcripts (Gotham 49, Hikaru 54, Naroditsky 81), 0 caption misses, 0 errors

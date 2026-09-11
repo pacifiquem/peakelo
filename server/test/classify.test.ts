@@ -45,6 +45,8 @@ describe('selectNewest', () => {
       blackName: 'b',
       result: '1-0' as const,
       pgn: '1. e4',
+      whiteRating: null,
+      blackRating: null,
     }));
     expect(selectNewest(games, 2).map((game) => game.externalId)).toEqual(['new', 'mid']);
   });

@@ -17,3 +17,6 @@ out
 !.vscode/settings.json
 tmp/playwright/
 .playwright-mcp/
+data/slow-runs/**
+!data/slow-runs/README.md
+scripts/slow-runs/.venv/

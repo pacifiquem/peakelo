@@ -42,6 +42,8 @@ export interface PlatformGame {
   blackName: string;
   result: GameResult;
   pgn: string;
+  whiteRating: number | null;
+  blackRating: number | null;
 }
 
 export function selectNewest(games: PlatformGame[], limit: number): PlatformGame[] {

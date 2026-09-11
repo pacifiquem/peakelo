@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   annotatePly,
+  applyUciLineFrom,
   evalAtPly,
   nextBestUci,
   replayPgn,
@@ -12,21 +13,32 @@ import {
   type MoveAnnotation,
   type ReplayPly,
 } from '@peakelo/engine';
-import type { AnalyzedPly, PublicGameAnalysis } from '@peakelo/shared';
+import type { AnalyzedPly, GameBrief, Lesson, LessonArrow, PublicGameAnalysis } from '@peakelo/shared';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, RiSkipRightLine } from '@remixicon/react';
 
 import { AnnotationMark } from '@/components/chess/annotation-mark';
 import { EvalBar } from '@/components/chess/eval-bar';
+import { LessonDesk } from '@/components/chess/lesson-desk';
 import { LichessBoard, type BoardShape } from '@/components/chess/lichess-board';
 import * as Button from '@/components/ui/button';
+import { askLesson, fetchGameBrief, fetchLesson, isLessonOffline, lessonErrorMessage } from '@/lib/lesson';
 import { annotationBrush } from '@/lib/move-annotation';
+import { showError } from '@/components/ui/toast';
 import { cn } from '@/utils/cn';
 
+type Variation = {
+  plies: ReplayPly[];
+  cursor: number;
+  playing: boolean;
+};
+
 export function GameEditor({
+  gameId,
   pgn,
   orientation,
   analysis,
 }: {
+  gameId: string;
   pgn: string;
   orientation: Color;
   analysis: PublicGameAnalysis;
@@ -47,31 +59,127 @@ export function GameEditor({
   }, [analysis.plies]);
 
   const [showBest, setShowBest] = useState(false);
+  const [variation, setVariation] = useState<Variation | null>(null);
+  const [lessonResult, setLessonResult] = useState<{
+    ply: number;
+    lesson: Lesson | null;
+    offline: boolean;
+    error: string | null;
+  } | null>(null);
+  const [brief, setBrief] = useState<GameBrief | null>(null);
+  const [briefReady, setBriefReady] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const [thread, setThread] = useState<{ ply: number; items: { role: 'player' | 'coach'; text: string }[] }>({
+    ply,
+    items: [],
+  });
+  const lesson = lessonResult?.ply === ply ? lessonResult.lesson : null;
+  const lessonOffline = lessonResult?.ply === ply ? lessonResult.offline : false;
+  const lessonError = lessonResult?.ply === ply ? lessonResult.error : null;
+  const lessonLoading = lessonResult?.ply !== ply;
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
+        if (variation) {
+          stepVariation(-1);
+          return;
+        }
         go(ply - 1);
       }
       if (event.key === 'ArrowRight') {
         event.preventDefault();
+        if (variation) {
+          stepVariation(1);
+          return;
+        }
         go(ply + 1);
       }
       if (event.key === 'Home') {
         event.preventDefault();
+        if (variation) {
+          setVariation((current) => (current ? { ...current, cursor: 0, playing: false } : current));
+          return;
+        }
         go(0);
       }
       if (event.key === 'End') {
         event.preventDefault();
+        if (variation) {
+          setVariation((current) =>
+            current ? { ...current, cursor: current.plies.length, playing: false } : current,
+          );
+          return;
+        }
         go(maxPly);
+      }
+      if (event.key === 'Escape' && variation) {
+        event.preventDefault();
+        setVariation(null);
       }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   });
 
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetchGameBrief(gameId, {}, controller.signal)
+      .then((next) => {
+        setBrief(next);
+        setBriefReady(true);
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setBrief(null);
+        setBriefReady(true);
+        if (!isLessonOffline(error)) showError(lessonErrorMessage(error));
+      });
+    return () => controller.abort();
+  }, [gameId]);
+
+  useEffect(() => {
+    if (!briefReady) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      void fetchLesson(gameId, { ply }, controller.signal)
+        .then((next) => {
+          setLessonResult({ ply, lesson: next, offline: false, error: null });
+        })
+        .catch((error: unknown) => {
+          if (controller.signal.aborted) return;
+          const offline = isLessonOffline(error);
+          setLessonResult({
+            ply,
+            lesson: null,
+            offline,
+            error: lessonErrorMessage(error),
+          });
+          if (!offline) showError(lessonErrorMessage(error));
+        });
+    }, 400);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [briefReady, gameId, ply]);
+
+  useEffect(() => {
+    if (!variation?.playing) return;
+    if (variation.cursor >= variation.plies.length) return;
+    const timer = window.setTimeout(() => {
+      setVariation((current) => {
+        if (!current?.playing) return current;
+        const next = current.cursor + 1;
+        return { ...current, cursor: next, playing: next < current.plies.length };
+      });
+    }, 360);
+    return () => window.clearTimeout(timer);
+  }, [variation]);
+
   function go(next: number) {
+    setVariation(null);
     const clamped = Math.min(maxPly, Math.max(0, next));
     const query = new URLSearchParams(params.toString());
     query.set('ply', String(clamped));
@@ -82,12 +190,78 @@ export function GameEditor({
     setShowBest((current) => !current);
   }
 
+  function stepVariation(delta: number) {
+    setVariation((current) => {
+      if (!current) return current;
+      const next = Math.min(current.plies.length, Math.max(0, current.cursor + delta));
+      return { ...current, cursor: next, playing: false };
+    });
+  }
+
+  function enterLine(uci: string[]) {
+    const mainline = ply === 0 ? null : (replayed.plies[ply - 1] ?? null);
+    const shownVariation =
+      variation && variation.cursor > 0 ? (variation.plies[variation.cursor - 1] ?? null) : null;
+    const displayed = shownVariation?.fen ?? mainline?.fen ?? replayed.startFen;
+    const before = mainline?.fenBefore ?? replayed.startFen;
+    const applied = applyUciLineFrom([displayed, lesson?.fen ?? '', before], uci);
+    if (!applied.legal || applied.plies.length === 0) {
+      showError('That line is not legal from this position.');
+      return;
+    }
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setVariation({
+      plies: applied.plies,
+      cursor: reduceMotion ? applied.plies.length : 0,
+      playing: !reduceMotion,
+    });
+  }
+
+  function askAboutPosition(question: string) {
+    setAsking(true);
+    const history = thread.ply === ply ? thread.items : [];
+    void askLesson(gameId, {
+      ply,
+      question,
+      history,
+      variationUci: variation ? variation.plies.slice(0, variation.cursor).map((item) => item.uci) : undefined,
+    })
+      .then((next) => {
+        setLessonResult({ ply, lesson: next, offline: false, error: null });
+        const nextThread: { role: 'player' | 'coach'; text: string }[] = [
+          ...history,
+          { role: 'player', text: question },
+          { role: 'coach', text: [next.headline, ...next.segments.map((segment) => segment.text)].join(' ') },
+        ];
+        setThread({ ply, items: nextThread.slice(-8) });
+      })
+      .catch((error: unknown) => {
+        showError(lessonErrorMessage(error));
+        if (isLessonOffline(error)) {
+          setLessonResult({ ply, lesson, offline: true, error: lessonErrorMessage(error) });
+        }
+      })
+      .finally(() => setAsking(false));
+  }
+
   const current = ply === 0 ? null : replayed.plies[ply - 1];
-  const fen = current?.fen ?? replayed.startFen;
-  const lastMove = current ? uciSquares(current.uci) : null;
-  const played = ply === 0 ? null : (byPly.get(ply) ?? null);
-  const upcomingUci = ready ? nextBestUci(analysis.plies ?? [], ply) : null;
-  const evalScore = ready ? evalAtPly(analysis.plies ?? [], ply) : null;
+  const variationPly = variation && variation.cursor > 0 ? variation.plies[variation.cursor - 1] : null;
+  const fen = variationPly?.fen ?? current?.fen ?? replayed.startFen;
+  const lastMove = variationPly
+    ? uciSquares(variationPly.uci)
+    : current
+      ? uciSquares(current.uci)
+      : null;
+  const played = ply === 0 || variation ? null : (byPly.get(ply) ?? null);
+  const upcomingUci =
+    ready && !variation && !lesson?.arrows.some((arrow) => arrow.brush === 'green')
+      ? nextBestUci(analysis.plies ?? [], ply)
+      : null;
+  const nextVariationUci =
+    variation && variation.cursor < variation.plies.length
+      ? variation.plies[variation.cursor]?.uci ?? null
+      : null;
+  const evalScore = ready && !variation ? evalAtPly(analysis.plies ?? [], ply) : null;
   const playedNote = played ? annotatePly(played) : null;
   const shapes = boardShapes({
     ready,
@@ -95,7 +269,12 @@ export function GameEditor({
     upcomingUci,
     lastMove,
     playedNote,
+    lessonArrows: variation && variation.cursor > 0 ? [] : (lesson?.arrows ?? []),
+    nextVariationUci,
   });
+
+  const atStart = variation ? variation.cursor === 0 : ply === 0;
+  const atEnd = variation ? variation.cursor >= variation.plies.length : ply === maxPly;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,600px)_minmax(16rem,1fr)] lg:items-start">
@@ -110,8 +289,8 @@ export function GameEditor({
             variant="neutral"
             mode="stroke"
             size="small"
-            disabled={ply === 0}
-            onClick={() => go(0)}
+            disabled={atStart}
+            onClick={() => (variation ? stepVariation(-variation.cursor) : go(0))}
             aria-label="Start position"
           >
             <RiSkipLeftLine className="size-4" />
@@ -121,8 +300,8 @@ export function GameEditor({
             variant="neutral"
             mode="stroke"
             size="small"
-            disabled={ply === 0}
-            onClick={() => go(ply - 1)}
+            disabled={atStart}
+            onClick={() => (variation ? stepVariation(-1) : go(ply - 1))}
             aria-label="Previous move"
           >
             <RiArrowLeftSLine className="size-4" />
@@ -132,8 +311,8 @@ export function GameEditor({
             variant="neutral"
             mode="stroke"
             size="small"
-            disabled={ply === maxPly}
-            onClick={() => go(ply + 1)}
+            disabled={atEnd}
+            onClick={() => (variation ? stepVariation(1) : go(ply + 1))}
             aria-label="Next move"
           >
             <RiArrowRightSLine className="size-4" />
@@ -143,14 +322,20 @@ export function GameEditor({
             variant="neutral"
             mode="stroke"
             size="small"
-            disabled={ply === maxPly}
-            onClick={() => go(maxPly)}
+            disabled={atEnd}
+            onClick={() =>
+              variation
+                ? setVariation((current) =>
+                    current ? { ...current, cursor: current.plies.length, playing: false } : current,
+                  )
+                : go(maxPly)
+            }
             aria-label="Last move"
           >
             <RiSkipRightLine className="size-4" />
           </Button.Root>
           <span className="font-mono text-sm text-text-strong-950">
-            {ply} / {maxPly}
+            {variation ? `line ${variation.cursor} / ${variation.plies.length}` : `${ply} / ${maxPly}`}
           </span>
           <Button.Root
             type="button"
@@ -184,6 +369,43 @@ export function GameEditor({
         ) : null}
       </div>
       <MoveList plies={replayed.plies} current={ply} onSelect={go} byPly={ready ? byPly : null} />
+      <div className="lg:col-span-2">
+        {variation && variation.plies.length > 0 ? (
+          <ol className="mb-3 flex flex-wrap gap-1 font-mono text-sm">
+            {variation.plies.map((item, index) => (
+              <li key={`${item.uci}-${index}`}>
+                <button
+                  type="button"
+                  className={cn(
+                    'border-2 border-ink px-2 py-1',
+                    variation.cursor === index + 1 ? 'bg-primary-base font-bold text-text-white-0' : 'bg-bg-white-0',
+                  )}
+                  onClick={() =>
+                    setVariation((current) =>
+                      current ? { ...current, cursor: index + 1, playing: false } : current,
+                    )
+                  }
+                >
+                  {item.san}
+                </button>
+              </li>
+            ))}
+          </ol>
+        ) : null}
+        <LessonDesk
+          brief={brief}
+          lesson={lesson}
+          loading={!briefReady || lessonLoading}
+          offline={lessonOffline}
+          error={lessonError}
+          variationActive={Boolean(variation)}
+          onEnterLine={enterLine}
+          onLeaveVariation={() => setVariation(null)}
+          onAsk={askAboutPosition}
+          onSelectPly={go}
+          asking={asking}
+        />
+      </div>
     </div>
   );
 }
@@ -194,21 +416,31 @@ function boardShapes({
   upcomingUci,
   lastMove,
   playedNote,
+  lessonArrows,
+  nextVariationUci,
 }: {
   ready: boolean;
   showBest: boolean;
   upcomingUci: string | null;
   lastMove: { from: NonNullable<ReturnType<typeof uciSquares>>['from']; to: NonNullable<ReturnType<typeof uciSquares>>['to'] } | null;
   playedNote: MoveAnnotation | null;
+  lessonArrows: LessonArrow[];
+  nextVariationUci: string | null;
 }): BoardShape[] {
-  if (!ready) return [];
   const shapes: BoardShape[] = [];
-  if (lastMove && playedNote) {
+  if (ready && lastMove && playedNote) {
     shapes.push({ from: lastMove.to, brush: annotationBrush(playedNote) });
   }
   if (showBest && upcomingUci) {
     const best = uciSquares(upcomingUci);
     if (best) shapes.push({ from: best.from, to: best.to, brush: 'green' });
+  }
+  if (nextVariationUci) {
+    const next = uciSquares(nextVariationUci);
+    if (next) shapes.push({ from: next.from, to: next.to, brush: 'paleGreen' });
+  }
+  for (const arrow of lessonArrows) {
+    shapes.push({ from: arrow.from as BoardShape['from'], to: arrow.to as BoardShape['to'], brush: arrow.brush });
   }
   return shapes;
 }

@@ -19,6 +19,7 @@
     "@fastify/cors": "^10.1.0",
     "@fastify/helmet": "^13.1.1",
     "@fastify/rate-limit": "^10.1.1",
+    "@mastra/core": "^1.66.0",
     "@peakelo/engine": "workspace:*",
     "@peakelo/shared": "workspace:*",
     "@prisma/client": "^6.19.3",

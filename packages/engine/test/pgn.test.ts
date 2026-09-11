@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { START_FEN, piecesFromFen, replayPgn } from '../src/pgn';
+import {
+  START_FEN,
+  applyUciLine,
+  applyUciLineFrom,
+  normalizeEpd,
+  piecesFromFen,
+  ratingsFromPgn,
+  replayPgn,
+} from '../src/pgn';
 
 describe('replayPgn', () => {
   it('replays a short mainline and records fen after each ply', () => {
@@ -42,6 +50,57 @@ describe('replayPgn', () => {
       baseTimeMs: null,
     });
     expect(replayPgn('not a game').plies).toEqual([]);
+  });
+});
+
+describe('normalizeEpd', () => {
+  it('drops halfmove and fullmove clocks', () => {
+    expect(normalizeEpd('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1')).toBe(
+      'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3',
+    );
+  });
+});
+
+describe('applyUciLine', () => {
+  it('plays a legal line from a fen and returns san', () => {
+    const line = applyUciLine(START_FEN, ['e2e4', 'e7e5', 'g1f3']);
+    expect(line.legal).toBe(true);
+    expect(line.plies.map((ply) => ply.san)).toEqual(['e4', 'e5', 'Nf3']);
+    expect(line.fen.startsWith('rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/')).toBe(true);
+  });
+
+  it('stops on an illegal move and reports legal false', () => {
+    const line = applyUciLine(START_FEN, ['e2e4', 'e2e4']);
+    expect(line.legal).toBe(false);
+    expect(line.plies.map((ply) => ply.san)).toEqual(['e4']);
+  });
+});
+
+describe('applyUciLineFrom', () => {
+  it('uses the first fen where the line is legal', () => {
+    const afterE4 = applyUciLine(START_FEN, ['e2e4']).fen;
+    const line = applyUciLineFrom([afterE4, START_FEN], ['e7e5']);
+    expect(line.legal).toBe(true);
+    expect(line.fromFen).toBe(afterE4);
+    expect(line.plies.map((ply) => ply.san)).toEqual(['e5']);
+  });
+
+  it('falls back to an earlier fen for an instead-of line', () => {
+    const afterE4 = applyUciLine(START_FEN, ['e2e4']).fen;
+    const line = applyUciLineFrom([afterE4, START_FEN], ['d2d4']);
+    expect(line.legal).toBe(true);
+    expect(line.fromFen).toBe(START_FEN);
+    expect(line.plies.map((ply) => ply.san)).toEqual(['d4']);
+  });
+});
+
+describe('ratingsFromPgn', () => {
+  it('reads WhiteElo and BlackElo and treats ? as missing', () => {
+    const pgn = `[WhiteElo "1842"]
+[BlackElo "?"]
+
+1. e4 e5 1-0`;
+    expect(ratingsFromPgn(pgn)).toEqual({ white: 1842, black: null });
   });
 });
 

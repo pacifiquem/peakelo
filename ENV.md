@@ -36,6 +36,9 @@ None. Do not put secrets in the repo root.
 | `STOCKFISH_PATH`             | no                        | `stockfish` on PATH, else npm `stockfish`     | UCI engine. A `.js` path (npm WASM) is launched with Node. |
 | `ENGINE_DEPTH`               | no                        | `12`                                          | Default search depth for the engine pass                |
 | `ENGINE_THREADS`             | no                        | `1`                                           | Stockfish `Threads`                                     |
+| `ANTHROPIC_API_KEY`          | no                        | —                                             | Anthropic key for the lesson coach. Empty → lesson routes 503 |
+| `LESSON_MODEL`               | no                        | `anthropic/claude-opus-4-6`                   | Mastra model-router id (override only if needed)        |
+| `SLOW_RUN_INDEX_PATH`        | no                        | `data/slow-runs/index/positions.json`         | FEN/EPD index. Teaching beats load from the same folder's `teaching.json` |
 
 Copy `server/.env.example` to `server/.env` for local runs.
 

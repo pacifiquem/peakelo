@@ -77,36 +77,21 @@ function GameLesson({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) 
             >
               {game.result} · {new Date(game.playedAt).toLocaleString()}. The scoresheet is real.
               {game.analysis.status === 'ready'
-                ? ' The bar and glyphs are from the engine pass.'
-                : ' Engine marks wait for the pass.'}
+                ? ' The bar and glyphs are from the engine pass. Click a sentence to walk the line.'
+                : ' Engine marks wait for the pass. The lesson still reads the board.'}
             </PageIntro>
             <GameEditor
+              gameId={game.id}
               pgn={game.pgn}
               orientation={game.userColor}
               analysis={game.analysis}
             />
-            <EmptyPlate folio="Lesson" title="The lesson is not written yet.">
-              The bar, glyphs, and best-move arrow come from the engine pass. The human writeup
-              is still later.
-            </EmptyPlate>
           </>
         ) : null}
 
         <PlannedList
           adr="docs/adr/0005-games-and-analysis.md"
           items={[
-            {
-              title: 'Quiet board',
-              detail: 'Real PGN, square, ink frame. Move list is navigation, not the lesson.',
-            },
-            {
-              title: 'Writeup',
-              detail: 'Why you played it, what you overlooked, 2–3 engine lines as stories.',
-            },
-            {
-              title: 'Arrows',
-              detail: 'Best-move arrow is the engine line for the side to move. Toggle it on.',
-            },
             {
               title: 'Footer',
               detail: 'This pattern is [named mistake] → profile. Drill this → /drills/[id].',

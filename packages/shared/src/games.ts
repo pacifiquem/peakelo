@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { gameSourceSchema, timeControlSchema } from './enums';
 import { analyzedPlySchema, gameAnalysisStatusSchema } from './profile';
+import { playerRatingContextSchema } from './rating';
 
 export const gameResultSchema = z.enum(['1-0', '0-1', '1/2-1/2', '*']);
 export type GameResult = z.infer<typeof gameResultSchema>;
@@ -27,6 +28,8 @@ export type PublicGameAnalysis = z.infer<typeof publicGameAnalysisSchema>;
 export const publicGameDetailSchema = publicGameSchema.extend({
   pgn: z.string(),
   analysis: publicGameAnalysisSchema,
+  playerRating: playerRatingContextSchema.nullable(),
+  opponentRating: z.number().int().positive().nullable(),
 });
 export type PublicGameDetail = z.infer<typeof publicGameDetailSchema>;
 

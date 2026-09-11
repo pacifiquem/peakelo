@@ -40,7 +40,8 @@ no bar, no icons, no arrow.
 
 - Quiet board + move list as navigation (shipped).
 - Engine bar / glyphs / best-move arrow from the pass (shipped when the pass is ready).
-- Writeup: why they played it, what they overlooked, 2–3 engine lines as stories.
+- Lesson: why they played it, what they overlooked, 2–3 engine lines as stories, clickable
+  segments that walk a variation (ADR 0010).
 - Clock callouts only when the clock decided the game.
 - Footer: this pattern is [named mistake] → `/profile#mistakes`; Drill this → `/drills/[id]`.
 - `?ply=` deep link from profile and drills (shipped).
