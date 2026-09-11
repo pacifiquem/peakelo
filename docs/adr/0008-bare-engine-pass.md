@@ -30,8 +30,10 @@ Tied to `docs/projectdef/coreideaflow.md`:
 5. Openings and pawn structures ranked by **ACPL and blunder rate**, not only score.
 6. Tactics by PV depth (1 / 2 / 3 / 4+) the player missed.
 
-Judgment uses raw centipawns from the player’s side: best ≤10, good 11–49, inaccuracy 50–99,
-mistake 100–299, blunder ≥300 (same cut the sample writeups used).
+Stored `judgment` uses raw centipawns from the player’s side: best ≤10, good 11–49,
+inaccuracy 50–99, mistake 100–299, blunder ≥300 (same cut the sample writeups used). That
+field is for the bare profile only. Scoresheet glyphs are Chess.com Classification V2
+(ADR 0009), computed by `annotatePly`, and can disagree with stored `judgment` on the same ply.
 
 ## Out of scope
 

@@ -90,6 +90,8 @@ export const analyzedPlySchema = z.object({
   bestEval: evalScoreSchema,
   bestUci: z.string(),
   bestSan: z.string(),
+  secondBestUci: z.string().optional(),
+  secondBestEval: evalScoreSchema.optional(),
   pvUci: z.array(z.string()),
   pvSan: z.array(z.string()),
   cpl: z.number().nonnegative(),

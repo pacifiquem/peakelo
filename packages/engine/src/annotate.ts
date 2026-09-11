@@ -9,8 +9,11 @@ import type { Color } from './square';
 
 export const MOVE_ANNOTATIONS = [
   'brilliant',
+  'great',
   'best',
+  'excellent',
   'good',
+  'book',
   'inaccuracy',
   'miss',
   'mistake',
@@ -28,10 +31,14 @@ const MATERIAL: Record<PieceRole, number> = {
   king: 0,
 };
 
-const WINNING_CP = 200;
-const LOSING_CP = -200;
-const ALREADY_WON_CP = 300;
-const NOT_BAD_AFTER_CP = -150;
+const EVEN_EP = 0.5;
+const DECISIVE_EP = 0.2;
+const WINNING_EP = EVEN_EP + DECISIVE_EP;
+const LOSING_EP = EVEN_EP - DECISIVE_EP;
+const EXCELLENT_EPL = 0.02;
+const GOOD_EPL = 0.05;
+const MISTAKE_EPL = 0.1;
+const BLUNDER_EPL = 0.2;
 
 export function moverCp(score: EvalScore, color: Color): number {
   const cp = scoreToCp(score);
@@ -53,6 +60,18 @@ export function expectedPointsLost(ply: Pick<AnalyzedPly, 'bestEval' | 'evalAfte
 function moverExpectedPoints(score: EvalScore, color: Color): number {
   const white = winPercent(score) / 100;
   return color === 'white' ? white : 1 - white;
+}
+
+function isWinningEp(ep: number): boolean {
+  return ep >= WINNING_EP;
+}
+
+function isLosingEp(ep: number): boolean {
+  return ep <= LOSING_EP;
+}
+
+function isEqualEp(ep: number): boolean {
+  return !isWinningEp(ep) && !isLosingEp(ep);
 }
 
 export function landedPieceHanging(fenAfter: string, dest: string, color: Color): boolean {
@@ -86,30 +105,73 @@ export function isPieceSacrifice(
   return landedPieceHanging(ply.fenAfter, squares.to, ply.color);
 }
 
+export function isBook(
+  ply: Pick<AnalyzedPly, 'opening'> & Partial<Pick<AnalyzedPly, 'bestEval' | 'evalAfter' | 'color'>>,
+): boolean {
+  if (!ply.opening) return false;
+  if (ply.bestEval && ply.evalAfter && ply.color) {
+    return expectedPointsLost({ bestEval: ply.bestEval, evalAfter: ply.evalAfter, color: ply.color }) < GOOD_EPL;
+  }
+  return true;
+}
+
 export function isBrilliant(ply: AnalyzedPly): boolean {
-  const nearlyBest = ply.uci === ply.bestUci || ply.cpl <= 15;
+  const lost = expectedPointsLost(ply);
+  const nearlyBest = ply.uci === ply.bestUci || lost <= EXCELLENT_EPL;
   if (!nearlyBest) return false;
-  if (moverCp(ply.evalAfter, ply.color) < NOT_BAD_AFTER_CP) return false;
-  if (moverCp(ply.evalBefore, ply.color) >= ALREADY_WON_CP) return false;
+  if (isLosingEp(moverExpectedPoints(ply.evalAfter, ply.color))) return false;
+  if (alreadyWinningWithout(ply)) return false;
   return isPieceSacrifice(ply);
+}
+
+function alreadyWinningWithout(ply: AnalyzedPly): boolean {
+  if (ply.secondBestEval) {
+    return isWinningEp(moverExpectedPoints(ply.secondBestEval, ply.color));
+  }
+  if (scoreToCp(ply.evalBefore) !== scoreToCp(ply.bestEval)) {
+    return isWinningEp(moverExpectedPoints(ply.evalBefore, ply.color));
+  }
+  return false;
+}
+
+export function isGreat(ply: AnalyzedPly): boolean {
+  const lost = expectedPointsLost(ply);
+  if (lost > EXCELLENT_EPL && ply.uci !== ply.bestUci) return false;
+  const before = moverExpectedPoints(ply.evalBefore, ply.color);
+  const after = moverExpectedPoints(ply.evalAfter, ply.color);
+  if (isLosingEp(before) && isEqualEp(after)) return true;
+  if (isEqualEp(before) && isWinningEp(after)) return true;
+  if (ply.secondBestEval) {
+    const secondLost = expectedPointsLost({
+      bestEval: ply.bestEval,
+      evalAfter: ply.secondBestEval,
+      color: ply.color,
+    });
+    if (secondLost >= MISTAKE_EPL) return true;
+  }
+  return false;
 }
 
 export function isMiss(ply: AnalyzedPly): boolean {
   if (ply.uci === ply.bestUci) return false;
-  if (moverCp(ply.bestEval, ply.color) < WINNING_CP) return false;
-  if (moverCp(ply.evalAfter, ply.color) >= WINNING_CP) return false;
-  return moverCp(ply.evalAfter, ply.color) > LOSING_CP;
+  if (!isWinningEp(moverExpectedPoints(ply.bestEval, ply.color))) return false;
+  const played = moverExpectedPoints(ply.evalAfter, ply.color);
+  if (isWinningEp(played) || isLosingEp(played)) return false;
+  return true;
 }
 
 export function annotatePly(ply: AnalyzedPly): MoveAnnotation {
+  if (isBook(ply)) return 'book';
   if (isBrilliant(ply)) return 'brilliant';
+  if (isGreat(ply)) return 'great';
   if (isMiss(ply)) return 'miss';
   const lost = expectedPointsLost(ply);
-  if (lost >= 0.2) return 'blunder';
-  if (lost >= 0.1) return 'mistake';
-  if (lost >= 0.05) return 'inaccuracy';
-  if (lost <= 0.02 && (ply.uci === ply.bestUci || ply.cpl <= 10)) return 'best';
-  return 'good';
+  if (lost >= BLUNDER_EPL) return 'blunder';
+  if (lost >= MISTAKE_EPL) return 'mistake';
+  if (lost >= GOOD_EPL) return 'inaccuracy';
+  if (lost > EXCELLENT_EPL) return 'good';
+  if (lost > 0) return 'excellent';
+  return 'best';
 }
 
 export function evalAtPly(plies: AnalyzedPly[], ply: number): EvalScore | null {
