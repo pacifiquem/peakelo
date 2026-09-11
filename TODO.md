@@ -31,3 +31,4 @@
 - [x] Settings in the rail (Account + Billing); Lichess-green game navigator
 - [x] Official Chessground board (cburnett) on `/games/[id]`
 - [x] Bare engine pass (Stockfish adapter + cron worker + Lichess opening book + raw `/profile`)
+- [x] Scoresheet glyphs: Chess.com Classification V2 (Great / Excellent / Book + published EPL table; ADR 0009)

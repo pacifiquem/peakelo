@@ -86,7 +86,10 @@ These override convenience, speed of typing, or "I think this is probably fine."
     vocabulary. Before writing or changing that code, look up the official definition online
     (Chess.com Help, Lichess source or docs, FIDE Laws / Handbook). If those sources disagree or
     none exists, stop and ask. Do not ship a homemade meaning for a term the community already
-    defined.
+    defined. **Standing pick (2026-09-11):** scoresheet glyphs follow Chess.com Classification V2
+    (ADR 0009). Expected points use the published Lichess Win% curve because Chess.com’s
+    rating-dependent formula is unpublished. Stored profile `judgment` stays ADR 0008 CPL cuts
+    until those two fields are explicitly unified. Audit: `docs/research/engine-chess-standards.md`.
 
 ---
 

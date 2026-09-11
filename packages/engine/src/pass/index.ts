@@ -50,6 +50,7 @@ export async function analyzePlayerGame(input: {
       playedLine = after.played ?? (after.lines[0] ? { ...after.lines[0], uci: ply.uci } : fallbackLine(ply.uci));
     }
 
+    const second = before.lines[1];
     const cpl = cplFromScores(best.score, playedLine.score, color);
     const judgment = judgmentFromCpl(cpl);
     const opponentPlies = plies.filter((item) => item.color !== color).slice(-3);
@@ -67,11 +68,14 @@ export async function analyzePlayerGame(input: {
       isPlayer: color === input.userColor,
       clockAfterMs: ply.clockAfterMs,
       timeSpentMs: spent,
-      evalBefore: best.score,
+      evalBefore: plies.at(-1)?.evalAfter ?? best.score,
       evalAfter: playedLine.score,
       bestEval: best.score,
       bestUci: best.uci,
       bestSan: sanFromUci(ply.fenBefore, best.uci),
+      ...(second
+        ? { secondBestUci: second.uci, secondBestEval: second.score }
+        : {}),
       pvUci: best.pvUci,
       pvSan: sansFromUci(ply.fenBefore, best.pvUci, 8),
       cpl,

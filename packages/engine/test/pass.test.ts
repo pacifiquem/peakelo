@@ -58,6 +58,10 @@ describe('analyzePlayerGame', () => {
     expect(result.plies[0]?.isPlayer).toBe(true);
     expect(result.plies[1]?.isPlayer).toBe(false);
     expect(result.plies[0]?.bestSan).toBe('e4');
+    expect(result.plies[0]?.secondBestUci).toBe('d2d4');
+    expect(result.plies[0]?.secondBestEval).toEqual({ kind: 'cp', value: 30 });
+    expect(result.plies[0]?.evalBefore).toEqual({ kind: 'cp', value: 40 });
+    expect(result.plies[1]?.evalBefore).toEqual(result.plies[0]?.evalAfter);
     expect(result.plies[0]?.cpl).toBe(0);
     expect(result.plies[0]?.judgment).toBe('best');
     expect(result.plies[0]?.opening?.name).toBe("King's Pawn Game");

@@ -31,10 +31,10 @@ the arrows, or press ← → Home End. The board orients from the player’s col
 
 When this game’s `GameAnalysis` is **ready**, the desk also shows engine-backed (not invented)
 tools: an eval bar + score, Remix icons on the scoresheet, and an optional arrow for the
-engine’s next best move. Labels follow Chess.com Classification V2 (expected-points cutoffs
-plus their specials): Brilliant is a sound piece sacrifice that is not already winning and
-does not leave you worse; Miss is failing to convert a winning engine line into a win.
-No analysis → no bar, no icons, no arrow.
+engine’s next best move. Labels follow Chess.com Classification V2 (ADR 0009): the published
+expected-points table (Best / Excellent / Good / Inaccuracy / Mistake / Blunder) plus Book,
+Brilliant, Great, and Miss. Expected points use the published Lichess Win% curve. No analysis →
+no bar, no icons, no arrow.
 
 ### Later
 
