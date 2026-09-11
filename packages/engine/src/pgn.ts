@@ -1,7 +1,8 @@
-import { makeUci } from 'chessops';
-import { makeFen } from 'chessops/fen';
+import { Chess, makeUci } from 'chessops';
+import { makeFen, parseFen } from 'chessops/fen';
 import { parsePgn, startingPosition } from 'chessops/pgn';
-import { parseSan } from 'chessops/san';
+import { makeSan, parseSan } from 'chessops/san';
+import { parseUci } from 'chessops/util';
 
 import { parseClkComment, parseTimeControlHeader } from './clocks';
 import { FILES, RANKS, type Color, type Square } from './square';
@@ -40,6 +41,26 @@ const ROLE_FROM_LETTER: Record<string, PieceRole> = {
   n: 'knight',
   p: 'pawn',
 };
+
+export function ratingsFromPgn(pgn: string): { white: number | null; black: number | null } {
+  const games = parsePgn(pgn.trim());
+  const game = games[0];
+  if (!game) return { white: null, black: null };
+  return {
+    white: eloHeader(game.headers.get('WhiteElo')),
+    black: eloHeader(game.headers.get('BlackElo')),
+  };
+}
+
+function eloHeader(raw: string | undefined): number | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed === '?' || trimmed === '-') return null;
+  const value = Number(trimmed);
+  if (!Number.isFinite(value)) return null;
+  const rounded = Math.round(value);
+  return rounded > 0 && rounded < 4000 ? rounded : null;
+}
 
 export function replayPgn(pgn: string): ReplayedGame {
   const games = parsePgn(pgn.trim());
@@ -99,6 +120,64 @@ export function piecesFromFen(fen: string): BoardPiece[] {
     file += 1;
   }
   return pieces;
+}
+
+export function normalizeEpd(fen: string): string {
+  const parts = fen.trim().split(/\s+/);
+  const board = parts[0] ?? '';
+  const side = parts[1] ?? 'w';
+  const castling = parts[2] ?? '-';
+  const ep = parts[3] ?? '-';
+  return `${board} ${side} ${castling} ${ep}`;
+}
+
+export function applyUciLineFrom(
+  fens: string[],
+  uciMoves: string[],
+): { fen: string; plies: ReplayPly[]; legal: boolean; fromFen: string } {
+  const seen = new Set<string>();
+  for (const fen of fens) {
+    if (!fen || seen.has(fen)) continue;
+    seen.add(fen);
+    const applied = applyUciLine(fen, uciMoves);
+    if (applied.legal && applied.plies.length > 0) {
+      return { ...applied, fromFen: fen };
+    }
+  }
+  return { fen: fens[0] ?? START_FEN, plies: [], legal: false, fromFen: fens[0] ?? START_FEN };
+}
+
+export function applyUciLine(
+  fen: string,
+  uciMoves: string[],
+): { fen: string; plies: ReplayPly[]; legal: boolean } {
+  const setup = parseFen(fen);
+  if (setup.isErr) return { fen, plies: [], legal: false };
+  const pos = Chess.fromSetup(setup.value);
+  if (pos.isErr) return { fen, plies: [], legal: false };
+
+  const position = pos.value;
+  const plies: ReplayPly[] = [];
+  let ply = 0;
+  for (const uci of uciMoves) {
+    const move = parseUci(uci);
+    if (!move || !position.isLegal(move)) {
+      return { fen: makeFen(position.toSetup()), plies, legal: false };
+    }
+    const fenBefore = makeFen(position.toSetup());
+    const san = makeSan(position, move);
+    position.play(move);
+    ply += 1;
+    plies.push({
+      ply,
+      san,
+      fen: makeFen(position.toSetup()),
+      fenBefore,
+      uci: makeUci(move),
+      clockAfterMs: null,
+    });
+  }
+  return { fen: makeFen(position.toSetup()), plies, legal: true };
 }
 
 export function uciSquares(uci: string): { from: Square; to: Square } | null {

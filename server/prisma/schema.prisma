@@ -135,14 +135,45 @@ model Game {
   result       String
   userColor    String
   pgn          String
+  whiteRating  Int?
+  blackRating  Int?
   createdAt    DateTime    @default(now())
 
   user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   analysis GameAnalysis?
+  lessons  GameLesson[]
+  brief    GameBrief?
 
   @@unique([userId, source, externalId])
   @@index([userId, playedAt])
   @@index([userId, timeControl])
+}
+
+model GameLesson {
+  id        String   @id @default(cuid())
+  gameId    String
+  ply       Int
+  fen       String
+  payload   Json
+  model     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, ply])
+  @@index([gameId])
+}
+
+model GameBrief {
+  id        String   @id @default(cuid())
+  gameId    String   @unique
+  payload   Json
+  model     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model EnginePass {

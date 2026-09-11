@@ -1,4 +1,4 @@
-import { DEFAULT_ENGINE_DEPTH, DEFAULT_ENGINE_THREADS } from '@peakelo/shared';
+import { DEFAULT_ENGINE_DEPTH, DEFAULT_ENGINE_THREADS, LESSON_MODEL } from '@peakelo/shared';
 import { z } from 'zod';
 import { parseCorsOrigins } from '../lib/cors-origins';
 
@@ -47,6 +47,15 @@ const envSchema = z.object({
   ENGINE_THREADS: z.preprocess(
     (value) => (value === '' || value === undefined ? undefined : value),
     z.coerce.number().int().positive().default(DEFAULT_ENGINE_THREADS),
+  ),
+  ANTHROPIC_API_KEY: optionalText,
+  SLOW_RUN_INDEX_PATH: z.preprocess(
+    (value) => (value === '' || value === undefined ? undefined : value),
+    z.string().min(1).default('data/slow-runs/index/positions.json'),
+  ),
+  LESSON_MODEL: z.preprocess(
+    (value) => (value === '' || value === undefined ? undefined : value),
+    z.string().min(1).default(LESSON_MODEL),
   ),
 });
 

@@ -5,8 +5,12 @@ import { parseBestmove, parseUciInfoLine, sideToMove, whitePositiveScore } from 
 const EVAL_TIMEOUT_MS = 15_000;
 const INIT_TIMEOUT_MS = 5_000;
 
+export type EngineEvaluateOptions = {
+  depth?: number;
+};
+
 export type EngineAdapter = {
-  evaluate(fen: string): Promise<PositionEval>;
+  evaluate(fen: string, options?: EngineEvaluateOptions): Promise<PositionEval>;
   close(): Promise<void>;
 };
 
@@ -135,7 +139,7 @@ export function createStockfishAdapter(opts: {
     started = true;
   }
 
-  async function evaluateOnce(fen: string): Promise<PositionEval> {
+  async function evaluateOnce(fen: string, depth = opts.depth): Promise<PositionEval> {
     if (closed) throw new Error('Engine adapter is closed');
     await ensureStarted();
     send('ucinewgame');
@@ -166,7 +170,7 @@ export function createStockfishAdapter(opts: {
       };
     });
     send(`position fen ${fen}`);
-    send(`go depth ${opts.depth}`);
+    send(`go depth ${depth}`);
     const bestmove = await done;
     const side = sideToMove(fen);
     const lines = [...infos.entries()]
@@ -189,8 +193,9 @@ export function createStockfishAdapter(opts: {
     return { lines };
   }
 
-  function evaluate(fen: string): Promise<PositionEval> {
-    const run = queue.then(() => evaluateOnce(fen));
+  function evaluate(fen: string, options?: EngineEvaluateOptions): Promise<PositionEval> {
+    const depth = options?.depth ?? opts.depth;
+    const run = queue.then(() => evaluateOnce(fen, depth));
     queue = run.then(
       () => undefined,
       () => undefined,

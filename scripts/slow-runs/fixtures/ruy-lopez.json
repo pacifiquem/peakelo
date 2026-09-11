@@ -1,0 +1,11 @@
+[
+  { "text": "okay we start with e4", "start": 1, "duration": 2 },
+  { "text": "they play e5", "start": 4, "duration": 2 },
+  { "text": "and I go knight f3", "start": 7, "duration": 2 },
+  { "text": "attacking the pawn", "start": 10, "duration": 2 },
+  { "text": "they develop knight c6", "start": 13, "duration": 2 },
+  { "text": "I play bishop b5", "start": 16, "duration": 2 },
+  { "text": "the Ruy Lopez", "start": 18, "duration": 2 },
+  { "text": "they kick us with a6", "start": 21, "duration": 2 },
+  { "text": "and I drop back bishop a4", "start": 24, "duration": 2 }
+]

@@ -8,6 +8,7 @@ import { pinoOptions } from './lib/logger';
 import { registerErrorHandler } from './common/error-handler';
 import { authRoutes } from './modules/auth/routes';
 import { gameRoutes } from './modules/games/routes';
+import { lessonRoutes } from './modules/lesson/routes';
 import { onboardingRoutes } from './modules/onboarding/routes';
 import { profileRoutes } from './modules/profile/routes';
 import { healthRoutes } from './routes/health';
@@ -33,6 +34,7 @@ export function buildApp() {
   app.register(authRoutes);
   app.register(onboardingRoutes);
   app.register(gameRoutes);
+  app.register(lessonRoutes);
   app.register(profileRoutes);
   return app;
 }

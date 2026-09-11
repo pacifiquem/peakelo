@@ -49,6 +49,8 @@ describe('publicGameDetailSchema', () => {
       userColor: 'black',
       pgn: '1. e4 e5 *',
       analysis: { status: 'none', plies: null },
+      playerRating: null,
+      opponentRating: null,
     });
     expect(parsed.pgn).toContain('e4');
     expect(parsed.analysis.status).toBe('none');

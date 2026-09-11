@@ -34,6 +34,8 @@ export async function persistGames(
         result: game.result,
         userColor,
         pgn: game.pgn,
+        whiteRating: game.whiteRating,
+        blackRating: game.blackRating,
       },
       update: {
         timeControl: game.timeControl,
@@ -43,6 +45,8 @@ export async function persistGames(
         result: game.result,
         userColor,
         pgn: game.pgn,
+        whiteRating: game.whiteRating,
+        blackRating: game.blackRating,
       },
     });
     written += 1;

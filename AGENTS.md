@@ -126,7 +126,9 @@ After onboarding the default logged-in surface is `/home`. Dashboard IA and empt
 contracts live in `docs/adr/0002-logged-in-dashboard.md` through `0007`. The bare engine
 snapshot (ADR 0008) may appear on `/profile` and as a pass-progress line in chrome. On
 `/games/[id]`, an eval bar, best-move arrow, and ply glyphs are allowed only from stored
-engine analysis (ADR 0005). Do not invent player types, arrows, evals, or drill positions.
+engine analysis (ADR 0005). The instructive **lesson** (ADR 0010) may add teaching arrows and
+clickable lines, but those arrows come from the lesson payload, never from invented eval.
+Do not invent player types, evals, or drill positions.
 
 ### 3.1 `@peakelo/shared` — what goes in
 
@@ -200,6 +202,15 @@ rather than silently deviate, then update this section.
 - **Engine adapter:** spawn **Stockfish** (UCI) from `server/src/modules/engine/`. Never put the
   binary or a WASM loader in `@peakelo/engine`. Default depth 12, 1 thread, MultiPV 3. Path is
   `STOCKFISH_PATH` (default `stockfish`). Tests inject a fake adapter.
+- **Lesson agent:** **Mastra** (`@mastra/core`) as an in-process tool loop inside
+  `server/src/modules/lesson/`. Do not mount Mastra’s default Fastify adapter or expose
+  `/api/agents`. Model is **Claude Opus 4.6** (`anthropic/claude-opus-4-6`) via
+  `ANTHROPIC_API_KEY` (optional at boot; missing key is a normal `SERVICE_UNAVAILABLE`,
+  not a client setup page). Tools: extra Stockfish MultiPV, exact-EPD slow-run search,
+  teaching-beat search for voice. Structured `Lesson` DTO in `@peakelo/shared`.
+- **Slow-run corpus:** local files under `data/slow-runs/` (gitignored raw transcripts),
+  a FEN/EPD index when a real game URL exists, and a teaching-beat index for cadence.
+  Built by `scripts/slow-runs/`. No vector DB and no paid transcript vendor.
 - **Board UI:** `@lichess-org/chessground` (Lichess cburnett + green squares). GPL-3.0 — Peakelo
   stays source-available. Do not replace it with a homemade board.
 - **Game import:** Chess.com Published Data API and Lichess export API. Initial import is the last

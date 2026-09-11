@@ -1,6 +1,8 @@
 import { INITIAL_IMPORT_LIMIT, type TimeControl } from '@peakelo/shared';
 import { env } from '../../../config/env';
 import { fetchJson, fetchWithTimeout, UpstreamError } from '../../../lib/http';
+import { parseEloValue } from '@peakelo/shared';
+import { ratingsFromPgn } from '@peakelo/engine';
 import { chesscomResult, mapChesscomTimeClass, selectNewest, type PlatformGame } from '../classify';
 
 const BASE = 'https://api.chess.com/pub';
@@ -26,8 +28,8 @@ interface ChesscomGame {
   end_time?: number;
   time_class?: string;
   rules?: string;
-  white?: { username?: string; result?: string };
-  black?: { username?: string; result?: string };
+  white?: { username?: string; result?: string; rating?: number };
+  black?: { username?: string; result?: string; rating?: number };
 }
 
 export async function fetchChesscomProfile(username: string): Promise<{
@@ -85,6 +87,7 @@ export async function fetchChesscomGames(input: {
       if (input.since && playedAt <= input.since) continue;
       const externalId = chesscomExternalId(game);
       if (!externalId) continue;
+      const fromPgn = ratingsFromPgn(game.pgn);
       collected.push({
         externalId,
         timeControl,
@@ -93,6 +96,8 @@ export async function fetchChesscomGames(input: {
         blackName: game.black?.username ?? 'Black',
         result: chesscomResult(game.white?.result ?? '', game.black?.result ?? ''),
         pgn: game.pgn,
+        whiteRating: parseEloValue(game.white?.rating) ?? fromPgn.white,
+        blackRating: parseEloValue(game.black?.rating) ?? fromPgn.black,
       });
     }
     const monthStart = archiveMonth(archiveUrl);

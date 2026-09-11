@@ -1,4 +1,5 @@
-import { INITIAL_IMPORT_LIMIT, type TimeControl } from '@peakelo/shared';
+import { INITIAL_IMPORT_LIMIT, parseEloValue, type TimeControl } from '@peakelo/shared';
+import { ratingsFromPgn } from '@peakelo/engine';
 import { fetchWithTimeout, UpstreamError } from '../../../lib/http';
 import { lichessResult, mapLichessSpeed, selectNewest, type PlatformGame } from '../classify';
 
@@ -10,8 +11,8 @@ interface LichessGame {
   createdAt?: number;
   winner?: string;
   players?: {
-    white?: { user?: { name?: string; id?: string } };
-    black?: { user?: { name?: string; id?: string } };
+    white?: { user?: { name?: string; id?: string }; rating?: number };
+    black?: { user?: { name?: string; id?: string }; rating?: number };
   };
   pgn?: string;
 }
@@ -61,6 +62,7 @@ export async function fetchLichessGames(input: {
     if (!game.id || !game.pgn) continue;
     const playedAt = new Date(game.lastMoveAt ?? game.createdAt ?? 0);
     if (Number.isNaN(playedAt.getTime()) || playedAt.getTime() === 0) continue;
+    const fromPgn = ratingsFromPgn(game.pgn);
     collected.push({
       externalId: game.id,
       timeControl,
@@ -69,6 +71,8 @@ export async function fetchLichessGames(input: {
       blackName: game.players?.black?.user?.name ?? 'Black',
       result: lichessResult(game.winner),
       pgn: game.pgn,
+      whiteRating: parseEloValue(game.players?.white?.rating) ?? fromPgn.white,
+      blackRating: parseEloValue(game.players?.black?.rating) ?? fromPgn.black,
     });
   }
   return selectNewest(collected, limit);
