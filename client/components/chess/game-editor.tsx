@@ -60,12 +60,11 @@ export function GameEditor({
 
   const [showBest, setShowBest] = useState(false);
   const [variation, setVariation] = useState<Variation | null>(null);
-  const [lessonResult, setLessonResult] = useState<{
-    ply: number;
-    lesson: Lesson | null;
-    offline: boolean;
-    error: string | null;
-  } | null>(null);
+  const [lessons, setLessons] = useState<Map<number, Lesson>>(new Map());
+  const [lessonMeta, setLessonMeta] = useState<Map<number, { offline: boolean; error: string | null }>>(
+    new Map(),
+  );
+  const [teachingPly, setTeachingPly] = useState<number | null>(null);
   const [brief, setBrief] = useState<GameBrief | null>(null);
   const [briefReady, setBriefReady] = useState(false);
   const [asking, setAsking] = useState(false);
@@ -73,10 +72,10 @@ export function GameEditor({
     ply,
     items: [],
   });
-  const lesson = lessonResult?.ply === ply ? lessonResult.lesson : null;
-  const lessonOffline = lessonResult?.ply === ply ? lessonResult.offline : false;
-  const lessonError = lessonResult?.ply === ply ? lessonResult.error : null;
-  const lessonLoading = lessonResult?.ply !== ply;
+  const lesson = lessons.get(ply) ?? null;
+  const lessonOffline = lessonMeta.get(ply)?.offline ?? false;
+  const lessonError = lessonMeta.get(ply)?.error ?? null;
+  const lessonLoading = teachingPly === ply;
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -139,31 +138,41 @@ export function GameEditor({
     return () => controller.abort();
   }, [gameId]);
 
-  useEffect(() => {
-    if (!briefReady) return;
+  function storeLesson(nextPly: number, next: Lesson) {
+    setLessons((current) => {
+      const map = new Map(current);
+      map.set(nextPly, next);
+      return map;
+    });
+    setLessonMeta((current) => {
+      const map = new Map(current);
+      map.set(nextPly, { offline: false, error: null });
+      return map;
+    });
+  }
+
+  function teachPly() {
+    if (lessons.has(ply) || teachingPly === ply) return;
     const controller = new AbortController();
-    const timer = window.setTimeout(() => {
-      void fetchLesson(gameId, { ply }, controller.signal)
-        .then((next) => {
-          setLessonResult({ ply, lesson: next, offline: false, error: null });
-        })
-        .catch((error: unknown) => {
-          if (controller.signal.aborted) return;
-          const offline = isLessonOffline(error);
-          setLessonResult({
-            ply,
-            lesson: null,
-            offline,
-            error: lessonErrorMessage(error),
-          });
-          if (!offline) showError(lessonErrorMessage(error));
+    setTeachingPly(ply);
+    void fetchLesson(gameId, { ply }, controller.signal)
+      .then((next) => {
+        storeLesson(ply, next);
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        const offline = isLessonOffline(error);
+        setLessonMeta((current) => {
+          const map = new Map(current);
+          map.set(ply, { offline, error: lessonErrorMessage(error) });
+          return map;
         });
-    }, 400);
-    return () => {
-      window.clearTimeout(timer);
-      controller.abort();
-    };
-  }, [briefReady, gameId, ply]);
+        if (!offline) showError(lessonErrorMessage(error));
+      })
+      .finally(() => {
+        setTeachingPly((current) => (current === ply ? null : current));
+      });
+  }
 
   useEffect(() => {
     if (!variation?.playing) return;
@@ -227,7 +236,7 @@ export function GameEditor({
       variationUci: variation ? variation.plies.slice(0, variation.cursor).map((item) => item.uci) : undefined,
     })
       .then((next) => {
-        setLessonResult({ ply, lesson: next, offline: false, error: null });
+        storeLesson(ply, next);
         const nextThread: { role: 'player' | 'coach'; text: string }[] = [
           ...history,
           { role: 'player', text: question },
@@ -238,7 +247,11 @@ export function GameEditor({
       .catch((error: unknown) => {
         showError(lessonErrorMessage(error));
         if (isLessonOffline(error)) {
-          setLessonResult({ ply, lesson, offline: true, error: lessonErrorMessage(error) });
+          setLessonMeta((current) => {
+            const map = new Map(current);
+            map.set(ply, { offline: true, error: lessonErrorMessage(error) });
+            return map;
+          });
         }
       })
       .finally(() => setAsking(false));
@@ -395,7 +408,8 @@ export function GameEditor({
         <LessonDesk
           brief={brief}
           lesson={lesson}
-          loading={!briefReady || lessonLoading}
+          briefLoading={!briefReady}
+          lessonLoading={lessonLoading}
           offline={lessonOffline}
           error={lessonError}
           variationActive={Boolean(variation)}
@@ -403,6 +417,7 @@ export function GameEditor({
           onLeaveVariation={() => setVariation(null)}
           onAsk={askAboutPosition}
           onSelectPly={go}
+          onTeach={teachPly}
           asking={asking}
         />
       </div>

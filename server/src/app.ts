@@ -11,6 +11,8 @@ import { gameRoutes } from './modules/games/routes';
 import { lessonRoutes } from './modules/lesson/routes';
 import { onboardingRoutes } from './modules/onboarding/routes';
 import { profileRoutes } from './modules/profile/routes';
+import { previewRoutes } from './modules/preview/routes';
+import { trainingRoutes } from './modules/training/routes';
 import { healthRoutes } from './routes/health';
 
 export function buildApp() {
@@ -36,5 +38,7 @@ export function buildApp() {
   app.register(gameRoutes);
   app.register(lessonRoutes);
   app.register(profileRoutes);
+  app.register(trainingRoutes);
+  app.register(previewRoutes);
   return app;
 }

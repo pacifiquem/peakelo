@@ -122,13 +122,26 @@ Workspace packages: `client/`, `server/`, `packages/*`. Build order: `@peakelo/s
 Interval jobs belong in `server/src/modules/cron/` (register in `jobs.ts`). The job body may
 call into `games` / later domains; do not put `setInterval` in those modules.
 
-After onboarding the default logged-in surface is `/home`. Dashboard IA and empty-state
+The logged-out landing is `/`. A visitor may paste a Chess.com or Lichess game URL for a
+public engine + coach review (ADR 0013) — real fetch, no invented PGN. After onboarding the
+default logged-in surface is `/home`. Dashboard IA and empty-state
 contracts live in `docs/adr/0002-logged-in-dashboard.md` through `0007`. The bare engine
-snapshot (ADR 0008) may appear on `/profile` and as a pass-progress line in chrome. On
+snapshot (ADR 0008) may appear on `/profile` and as a pass-progress line in chrome. The
+instructive **writeup**, **roadmap**, and playable **drills** (ADR 0012) are generated from
+that snapshot — never from invented FENs. On
 `/games/[id]`, an eval bar, best-move arrow, and ply glyphs are allowed only from stored
 engine analysis (ADR 0005). The instructive **lesson** (ADR 0010) may add teaching arrows and
 clickable lines, but those arrows come from the lesson payload, never from invented eval.
 Do not invent player types, evals, or drill positions.
+
+**To test the dashboard or the engine pass, import real public games.** Do not invent
+fixtures. Pick a Chess.com username from
+[`docs/projectdef/sample-bare-analysis/chess_com_games_2026-09-07.pgn`](./docs/projectdef/sample-bare-analysis/chess_com_games_2026-09-07.pgn)
+(the player who appears in every game is a good default; an opponent works if that handle is
+already linked). Link it on a **test** account via `/connect/chesscom` or
+`POST /onboarding/chesscom`, then start the real import so `/home`, `/games`, and `/profile`
+have data. Do not overwrite the owner's linked username. Run the engine pass on that test
+account only when you need analyzed plies, glyphs, or a profile snapshot.
 
 ### 3.1 `@peakelo/shared` — what goes in
 

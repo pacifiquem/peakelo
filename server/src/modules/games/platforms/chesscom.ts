@@ -7,6 +7,35 @@ import { chesscomResult, mapChesscomTimeClass, selectNewest, type PlatformGame }
 
 const BASE = 'https://api.chess.com/pub';
 
+export function chesscomArchiveMonths(input: {
+  dateHeader?: string;
+  endTime?: number;
+}): Array<{ year: string; month: string }> {
+  const stamps: Date[] = [];
+  if (input.endTime) {
+    const ended = new Date(input.endTime * 1000);
+    if (!Number.isNaN(ended.getTime())) stamps.push(ended);
+  }
+  const header = input.dateHeader?.match(/^(\d{4})\.(\d{2})(?:\.(\d{2}))?/);
+  if (header) {
+    stamps.push(new Date(Date.UTC(Number(header[1]), Number(header[2]) - 1, Number(header[3] ?? '1'))));
+  }
+  const seen = new Set<string>();
+  const months: Array<{ year: string; month: string }> = [];
+  for (const stamp of stamps) {
+    for (const delta of [0, -1, 1]) {
+      const next = new Date(Date.UTC(stamp.getUTCFullYear(), stamp.getUTCMonth() + delta, 1));
+      const year = String(next.getUTCFullYear());
+      const month = String(next.getUTCMonth() + 1).padStart(2, '0');
+      const key = `${year}-${month}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      months.push({ year, month });
+    }
+  }
+  return months;
+}
+
 function headers(): Record<string, string> {
   return {
     Accept: 'application/json',
@@ -58,6 +87,55 @@ export async function fetchChesscomProfile(username: string): Promise<{
     }
     throw error;
   }
+}
+
+export async function fetchChesscomGameById(input: {
+  kind: 'live' | 'daily';
+  id: string;
+}): Promise<PlatformGame | null> {
+  const callback = await fetchJson<{
+    game?: {
+      pgnHeaders?: { White?: string; Date?: string };
+      endTime?: number;
+    };
+  }>(`https://www.chess.com/callback/${input.kind}/game/${input.id}`, { headers: headers() });
+  const white = callback.game?.pgnHeaders?.White;
+  const date = callback.game?.pgnHeaders?.Date;
+  if (!white) return null;
+  const months = chesscomArchiveMonths({
+    endTime: callback.game?.endTime,
+    dateHeader: date,
+  });
+  if (months.length === 0) return null;
+  let match: ChesscomGame | undefined;
+  for (const stamp of months) {
+    const archive = await fetchJson<{ games?: ChesscomGame[] }>(
+      `${BASE}/player/${encodeURIComponent(white.toLowerCase())}/games/${stamp.year}/${stamp.month}`,
+      { headers: headers() },
+    );
+    match = (archive.games ?? []).find((game) => {
+      const urlId = game.url?.match(/\/(\d+)\s*$/)?.[1];
+      return urlId === input.id;
+    });
+    if (match?.pgn) break;
+  }
+  if (!match?.pgn) return null;
+  if (match.rules && match.rules !== 'chess') return null;
+  const timeControl = mapChesscomTimeClass(match.time_class ?? '');
+  if (!timeControl) return null;
+  const playedAt = new Date((match.end_time ?? 0) * 1000);
+  const fromPgn = ratingsFromPgn(match.pgn);
+  return {
+    externalId: input.id,
+    timeControl,
+    playedAt: Number.isNaN(playedAt.getTime()) ? new Date() : playedAt,
+    whiteName: match.white?.username ?? white,
+    blackName: match.black?.username ?? 'Black',
+    result: chesscomResult(match.white?.result ?? '', match.black?.result ?? ''),
+    pgn: match.pgn,
+    whiteRating: parseEloValue(match.white?.rating) ?? fromPgn.white,
+    blackRating: parseEloValue(match.black?.rating) ?? fromPgn.black,
+  };
 }
 
 export async function fetchChesscomGames(input: {

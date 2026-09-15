@@ -12,7 +12,8 @@ import { cn } from '@/utils/cn';
 export function LessonDesk({
   brief,
   lesson,
-  loading,
+  briefLoading,
+  lessonLoading,
   offline,
   error,
   variationActive,
@@ -20,11 +21,13 @@ export function LessonDesk({
   onLeaveVariation,
   onAsk,
   onSelectPly,
+  onTeach,
   asking,
 }: {
   brief: GameBrief | null;
   lesson: Lesson | null;
-  loading: boolean;
+  briefLoading: boolean;
+  lessonLoading: boolean;
   offline: boolean;
   error: string | null;
   variationActive: boolean;
@@ -32,20 +35,21 @@ export function LessonDesk({
   onLeaveVariation: () => void;
   onAsk: (question: string) => void;
   onSelectPly: (ply: number) => void;
+  onTeach: () => void;
   asking: boolean;
 }) {
   const [question, setQuestion] = useState('');
 
-  if (loading && !lesson) {
+  if (briefLoading && !brief && !lesson) {
     return (
       <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
         <p className="font-mono text-sm text-text-sub-600">Lesson</p>
-        <p className="mt-2 text-sm text-text-sub-600">Reading the game, then this ply…</p>
+        <p className="mt-2 text-sm text-text-sub-600">Reading the game…</p>
       </section>
     );
   }
 
-  if (offline) {
+  if (offline && !lesson) {
     return (
       <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
         <p className="font-mono text-sm text-text-sub-600">Lesson</p>
@@ -57,17 +61,53 @@ export function LessonDesk({
     );
   }
 
-  if (error && !lesson) {
+  if (!lesson) {
     return (
       <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
         <p className="font-mono text-sm text-text-sub-600">Lesson</p>
-        <h2 className="mt-2 font-display text-xl font-extrabold">No lesson for this ply yet.</h2>
-        <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-strong-950">{error}</p>
+        {brief ? (
+          <div className="mt-2 max-w-[62ch]">
+            <h2 className="font-display text-xl font-extrabold text-text-strong-950">{brief.headline}</h2>
+            <p className="mt-2 text-sm leading-6 text-text-strong-950">{brief.story}</p>
+            {brief.keyPlies.length > 0 ? (
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {brief.keyPlies.map((item) => (
+                  <li key={`${item.ply}-${item.san}`}>
+                    <button
+                      type="button"
+                      className="border-2 border-ink bg-bg-weak-50 px-2 py-1 font-mono text-sm hover:bg-bg-white-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                      onClick={() => onSelectPly(item.ply)}
+                    >
+                      {item.san}
+                      <span className="ml-2 font-sans text-text-sub-600">{item.why}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : (
+          <h2 className="mt-2 font-display text-xl font-extrabold">Teach this ply when you want it.</h2>
+        )}
+        <p className="mt-3 max-w-[62ch] text-sm leading-6 text-text-strong-950">
+          The scoresheet and engine marks are already on the board. The coach writes this position
+          only when you ask.
+        </p>
+        {error ? <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-strong-950">{error}</p> : null}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button.Root type="button" className="w-fit" disabled={lessonLoading} onClick={onTeach}>
+            {lessonLoading ? 'Writing this ply…' : 'Teach this position'}
+          </Button.Root>
+        </div>
+        <AskForm
+          question={question}
+          setQuestion={setQuestion}
+          asking={asking || lessonLoading}
+          onAsk={onAsk}
+        />
       </section>
     );
   }
-
-  if (!lesson) return null;
 
   return (
     <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
@@ -171,34 +211,50 @@ export function LessonDesk({
         </ul>
       ) : null}
 
-      <form
-        className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center"
-        onSubmit={(event) => {
-          event.preventDefault();
-          const next = question.trim();
-          if (!next || asking) return;
-          onAsk(next);
-          setQuestion('');
-        }}
-      >
-        <Input.Root className="flex-1">
-          <Input.Wrapper>
-            <Input.Icon as={RiQuestionLine} />
-            <Input.Input
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              maxLength={500}
-              placeholder="Ask about this position"
-              aria-label="Ask about this position"
-              disabled={asking}
-            />
-          </Input.Wrapper>
-        </Input.Root>
-        <Button.Root type="submit" className="w-full sm:w-fit" disabled={asking || question.trim().length === 0}>
-          Ask
-        </Button.Root>
-      </form>
+      <AskForm question={question} setQuestion={setQuestion} asking={asking} onAsk={onAsk} />
     </section>
+  );
+}
+
+function AskForm({
+  question,
+  setQuestion,
+  asking,
+  onAsk,
+}: {
+  question: string;
+  setQuestion: (value: string) => void;
+  asking: boolean;
+  onAsk: (question: string) => void;
+}) {
+  return (
+    <form
+      className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const next = question.trim();
+        if (!next || asking) return;
+        onAsk(next);
+        setQuestion('');
+      }}
+    >
+      <Input.Root className="flex-1">
+        <Input.Wrapper>
+          <Input.Icon as={RiQuestionLine} />
+          <Input.Input
+            value={question}
+            onChange={(event) => setQuestion(event.target.value)}
+            maxLength={500}
+            placeholder="Ask about this position"
+            aria-label="Ask about this position"
+            disabled={asking}
+          />
+        </Input.Wrapper>
+      </Input.Root>
+      <Button.Root type="submit" className="w-full sm:w-fit" disabled={asking || question.trim().length === 0}>
+        Ask
+      </Button.Root>
+    </form>
   );
 }
 

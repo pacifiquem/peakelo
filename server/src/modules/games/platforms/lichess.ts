@@ -5,6 +5,7 @@ import { lichessResult, mapLichessSpeed, selectNewest, type PlatformGame } from 
 
 interface LichessGame {
   id?: string;
+  status?: string;
   variant?: string;
   speed?: string;
   lastMoveAt?: number;
@@ -15,6 +16,39 @@ interface LichessGame {
     black?: { user?: { name?: string; id?: string }; rating?: number };
   };
   pgn?: string;
+}
+
+export async function fetchLichessGameById(id: string, accessToken?: string | null): Promise<PlatformGame | null> {
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+  const url = new URL(`https://lichess.org/game/export/${encodeURIComponent(id)}`);
+  url.searchParams.set('pgnInJson', 'true');
+  url.searchParams.set('clocks', 'true');
+  url.searchParams.set('opening', 'true');
+  url.searchParams.set('moves', 'true');
+  const response = await fetchWithTimeout(url.toString(), { headers }, 20_000);
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new UpstreamError(`Lichess game ${response.status}`, response.status);
+  }
+  const game = (await response.json()) as LichessGame;
+  if (game.status === 'aborted' || game.status === 'noStart') return null;
+  if (game.variant && game.variant !== 'standard') return null;
+  const timeControl = mapLichessSpeed(game.speed ?? '');
+  if (!timeControl || !game.pgn) return null;
+  const playedAt = new Date(game.lastMoveAt ?? game.createdAt ?? 0);
+  const fromPgn = ratingsFromPgn(game.pgn);
+  return {
+    externalId: game.id ?? id,
+    timeControl,
+    playedAt: Number.isNaN(playedAt.getTime()) ? new Date() : playedAt,
+    whiteName: game.players?.white?.user?.name ?? 'White',
+    blackName: game.players?.black?.user?.name ?? 'Black',
+    result: lichessResult(game.winner),
+    pgn: game.pgn,
+    whiteRating: parseEloValue(game.players?.white?.rating) ?? fromPgn.white,
+    blackRating: parseEloValue(game.players?.black?.rating) ?? fromPgn.black,
+  };
 }
 
 export async function fetchLichessGames(input: {

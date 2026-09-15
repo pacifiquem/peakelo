@@ -57,6 +57,42 @@ enum GameAnalysisStatus {
   failed
 }
 
+enum WriteupStatus {
+  idle
+  queued
+  running
+  ready
+  failed
+}
+
+enum DrillKind {
+  blunder_preventer
+  replay_mistake
+  defend_worse
+  convert_advantage
+  make_plan
+}
+
+enum DrillStatus {
+  assigned
+  due
+  done
+  retired
+}
+
+enum DrillAttemptResult {
+  hit
+  miss
+  abandoned
+}
+
+enum PublicReviewStatus {
+  queued
+  running
+  ready
+  failed
+}
+
 model User {
   id          String   @id @default(cuid())
   email       String?  @unique
@@ -70,8 +106,12 @@ model User {
   onboarding  Onboarding?
   games       Game[]
   syncStates  SyncState[]
-  enginePass  EnginePass?
-  analyses    GameAnalysis[]
+  enginePass    EnginePass?
+  analyses      GameAnalysis[]
+  writeup       ProfileWriteup?
+  roadmap       Roadmap?
+  drills        Drill[]
+  drillAttempts DrillAttempt[]
 }
 
 model AuthAccount {
@@ -232,4 +272,97 @@ model SyncState {
 
   @@unique([userId, source])
   @@index([lastSyncedAt])
+}
+
+model ProfileWriteup {
+  userId      String        @id
+  status      WriteupStatus @default(idle)
+  payload     Json?
+  model       String?
+  error       String?
+  generatedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Roadmap {
+  userId      String   @id
+  payload     Json
+  generatedAt DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Drill {
+  id            String      @id @default(cuid())
+  userId        String
+  kind          DrillKind
+  stepId        String
+  fen           String
+  playerColor   String
+  sourceGameId  String
+  sourcePly     Int
+  stem          String
+  goalUci       String[]
+  goalSan       String[]
+  leak          String?
+  status        DrillStatus @default(due)
+  dueAt         DateTime?
+  lastAttemptAt DateTime?
+  lastResult    DrillAttemptResult?
+  attemptCount  Int         @default(0)
+  hitCount      Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attempts DrillAttempt[]
+
+  @@unique([userId, sourceGameId, sourcePly, kind])
+  @@index([userId, status, dueAt])
+  @@index([userId, stepId])
+}
+
+model DrillAttempt {
+  id        String             @id @default(cuid())
+  drillId   String
+  userId    String
+  playedUci String[]
+  result    DrillAttemptResult
+  createdAt DateTime           @default(now())
+
+  drill Drill @relation(fields: [drillId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([drillId, createdAt])
+}
+
+model PublicReview {
+  id           String             @id @default(cuid())
+  source       GameSource
+  externalId   String
+  url          String
+  pgn          String
+  whiteName    String
+  blackName    String
+  result       String
+  timeControl  TimeControl?
+  playedAt     DateTime?
+  whiteRating  Int?
+  blackRating  Int?
+  status       PublicReviewStatus @default(queued)
+  error        String?
+  plies        Json?
+  review       Json?
+  model        String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([source, externalId])
+  @@index([status, createdAt])
 }

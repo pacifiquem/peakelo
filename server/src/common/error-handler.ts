@@ -12,10 +12,15 @@ export function registerErrorHandler(app: FastifyInstance) {
         });
       }
 
-      if (error instanceof ZodError) {
+      if (error instanceof ZodError || error?.name === 'ZodError') {
+        const zod = error as ZodError;
         request.log.warn({ err: error }, 'validation failed');
         return reply.status(400).send({
-          error: { code: 'VALIDATION_ERROR', message: 'Invalid request', details: error.flatten() },
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid request',
+            details: typeof zod.flatten === 'function' ? zod.flatten() : undefined,
+          },
         });
       }
 

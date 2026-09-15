@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { ForbiddenError } from '../../common/errors';
 import { requireUser } from '../auth/session';
-import { getPublicProfile } from './service';
+import { getCoachProfile } from '../training/service';
 
 export async function profileRoutes(app: FastifyInstance) {
   app.get('/profile', async (request) => {
@@ -9,6 +9,6 @@ export async function profileRoutes(app: FastifyInstance) {
     if (!user.onboarding.completed) {
       throw new ForbiddenError('Finish onboarding before viewing your profile');
     }
-    return getPublicProfile(user.id);
+    return getCoachProfile(user.id);
   });
 }

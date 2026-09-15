@@ -2,18 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { gameSourcesFromAccounts, type PaginatedResult, type PublicGame } from '@peakelo/shared';
+import {
+  DRILL_KIND_LABEL,
+  gameSourcesFromAccounts,
+  type PaginatedResult,
+  type PublicGame,
+  type TrainingDesk,
+} from '@peakelo/shared';
 
 import { AppShell } from '@/components/app-shell';
 import { DashboardGate } from '@/components/dashboard/dashboard-gate';
 import { DashboardWell } from '@/components/dashboard/dashboard-well';
 import { EmptyPlate } from '@/components/dashboard/empty-plate';
 import { PageIntro } from '@/components/dashboard/page-intro';
-import { PlannedList } from '@/components/dashboard/planned-list';
 import * as Button from '@/components/ui/button';
 import { showError } from '@/components/ui/toast';
 import { api } from '@/lib/api';
 import { isEnginePassActive, passGameTotal } from '@/lib/engine-pass';
+import { fetchTrainingDesk } from '@/lib/training';
 
 export default function HomePage() {
   return (
@@ -25,6 +31,7 @@ export default function HomePage() {
 
 function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
   const [games, setGames] = useState<PaginatedResult<PublicGame> | null>(null);
+  const [desk, setDesk] = useState<TrainingDesk | null>(null);
   const source = (user.gameSources ?? gameSourcesFromAccounts(user.accounts))[0];
 
   useEffect(() => {
@@ -36,8 +43,24 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
       });
   }, [source]);
 
+  useEffect(() => {
+    void fetchTrainingDesk()
+      .then(setDesk)
+      .catch((err: unknown) => showError(err instanceof Error ? err.message : 'Could not load training'));
+  }, [user.enginePass.status]);
+
+  useEffect(() => {
+    if (desk?.writeup.status !== 'queued' && desk?.writeup.status !== 'running') return;
+    const timer = window.setInterval(() => {
+      void fetchTrainingDesk()
+        .then(setDesk)
+        .catch(() => undefined);
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [desk?.writeup.status]);
+
   const waiting = games?.data ?? [];
-  const plate = plate00(user, waiting.length);
+  const plate = plate00(user, waiting.length, desk);
 
   return (
     <AppShell user={user}>
@@ -55,7 +78,7 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
           <section className="border-2 border-ink bg-bg-white-0 shadow-regular-xs">
             <header className="border-b-2 border-ink bg-bg-weak-50 px-4 py-2">
               <p className="font-mono text-sm font-medium text-text-strong-950">
-                Waiting on a writeup
+                {desk?.writeup.document ? 'Waiting on you' : 'Waiting on a writeup'}
               </p>
             </header>
             <ul className="divide-y-2 divide-ink">
@@ -78,6 +101,30 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
           </section>
         ) : null}
 
+        {desk?.writeup.document ? (
+          <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+            <p className="font-mono text-sm text-text-sub-600">Headline</p>
+            <h2 className="mt-2 font-display text-2xl font-extrabold">{desk.writeup.document.headline}</h2>
+            <p className="mt-2 font-mono text-sm">
+              Goal: {desk.progress.goalLabel} · {desk.progress.stepsDone}/{desk.progress.stepsTotal} steps ·{' '}
+              {desk.progress.drillsDue} due
+            </p>
+          </section>
+        ) : null}
+
+        {desk?.progress.nextDrill ? (
+          <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+            <p className="font-mono text-sm text-text-sub-600">Today’s work</p>
+            <h2 className="mt-2 font-display text-2xl font-extrabold">
+              {DRILL_KIND_LABEL[desk.progress.nextDrill.kind]}
+            </h2>
+            <p className="mt-2 max-w-[62ch] text-base leading-7">{desk.progress.nextDrill.stem}</p>
+            <Button.Root asChild className="mt-4 w-fit">
+              <Link href={`/drills/${desk.progress.nextDrill.id}`}>Open the drill</Link>
+            </Button.Root>
+          </section>
+        ) : null}
+
         <div className="flex flex-wrap gap-3">
           <Button.Root asChild className="w-fit">
             <Link href="/games">Open the scoresheet</Link>
@@ -85,35 +132,20 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
           <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
             <Link href="/profile">Profile</Link>
           </Button.Root>
+          <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
+            <Link href="/roadmap">Roadmap</Link>
+          </Button.Root>
         </div>
-
-        <PlannedList
-          adr="docs/adr/0003-home.md"
-          items={[
-            {
-              title: 'Player headline',
-              detail: 'One sentence from the profile writeup, only after the engine pass.',
-            },
-            {
-              title: 'Today’s work',
-              detail: 'A single CTA: continue a named drill, review a named game, or open a roadmap step.',
-            },
-            {
-              title: 'Waiting on you',
-              detail: 'At most three unreviewed games or unread writeups.',
-            },
-            {
-              title: 'Sync line',
-              detail: 'New games land about every 30 minutes — already true, stays a sentence.',
-            },
-          ]}
-        />
       </DashboardWell>
     </AppShell>
   );
 }
 
-function plate00(user: Parameters<typeof AppShell>[0]['user'], waiting: number) {
+function plate00(
+  user: Parameters<typeof AppShell>[0]['user'],
+  waiting: number,
+  desk: TrainingDesk | null,
+) {
   const pass = user.enginePass;
 
   if (isEnginePassActive(pass.status)) {
@@ -136,6 +168,24 @@ function plate00(user: Parameters<typeof AppShell>[0]['user'], waiting: number) 
   }
 
   if (pass.status === 'ready') {
+    if (desk?.writeup.status === 'queued' || desk?.writeup.status === 'running') {
+      return {
+        title: 'Writing who you are.',
+        body: <p>The coach is reading the snapshot. Today’s work lands when the writeup is ready.</p>,
+      };
+    }
+    if (desk?.writeup.document) {
+      return {
+        title: desk.writeup.document.headline,
+        body: (
+          <p>
+            {desk.progress.nextDrill
+              ? 'One drill on the desk. The syllabus is the rest of the week.'
+              : 'The writeup is ready. Open the syllabus when you want the next leak.'}
+          </p>
+        ),
+      };
+    }
     return {
       title: waiting > 0 ? 'Your games are in.' : 'Snapshot is ready.',
       body: (

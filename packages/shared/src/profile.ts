@@ -25,6 +25,17 @@ export const overlookedSchema = z.enum([
 ]);
 export type Overlooked = z.infer<typeof overlookedSchema>;
 
+export const OVERLOOKED_LABEL: Record<Overlooked, string> = {
+  hanging_piece: 'Hanging piece',
+  missed_hanging: 'Missed hanging',
+  missed_capture: 'Missed capture',
+  missed_check: 'Missed check',
+  missed_mate: 'Missed mate',
+  missed_combination: 'Missed combination',
+  material_loss: 'Material loss',
+  time_scramble: 'Time scramble',
+};
+
 export const evalScoreSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('cp'), value: z.number().int() }),
   z.object({ kind: z.literal('mate'), value: z.number().int() }),

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { PublicProfile, PublicUser } from '@peakelo/shared';
+import type { PublicCoachProfile, PublicUser } from '@peakelo/shared';
 
 import { AppShell } from '@/components/app-shell';
 import { DashboardGate } from '@/components/dashboard/dashboard-gate';
@@ -10,9 +10,10 @@ import { EmptyPlate } from '@/components/dashboard/empty-plate';
 import { EnginePassCounts } from '@/components/dashboard/engine-pass-banner';
 import { PageIntro } from '@/components/dashboard/page-intro';
 import { SnapshotDesk } from '@/components/profile/snapshot-desk';
+import { WriteupDesk } from '@/components/profile/writeup-desk';
 import { showError } from '@/components/ui/toast';
-import { api } from '@/lib/api';
 import { isEnginePassActive } from '@/lib/engine-pass';
+import { fetchCoachProfile, queueWriteup, trainingErrorMessage } from '@/lib/training';
 
 export default function ProfilePage() {
   return (
@@ -27,19 +28,20 @@ export default function ProfilePage() {
 }
 
 function ProfileDesk({ user }: { user: PublicUser }) {
-  const [snapshot, setSnapshot] = useState<PublicProfile | null | undefined>(undefined);
+  const [snapshot, setSnapshot] = useState<PublicCoachProfile | null | undefined>(undefined);
+  const [busy, setBusy] = useState(false);
   const pass = user.enginePass;
   const active = isEnginePassActive(pass.status);
 
   useEffect(() => {
     let cancelled = false;
-    api<PublicProfile>('/profile')
+    fetchCoachProfile()
       .then((data) => {
         if (!cancelled) setSnapshot(data);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        showError(err instanceof Error ? err.message : 'Could not load the profile');
+        showError(trainingErrorMessage(err));
         setSnapshot(null);
       });
     return () => {
@@ -47,19 +49,48 @@ function ProfileDesk({ user }: { user: PublicUser }) {
     };
   }, [pass.status]);
 
+  const writeupStatus = snapshot?.writeup.status;
+  useEffect(() => {
+    if (writeupStatus !== 'queued' && writeupStatus !== 'running') return;
+    const timer = window.setInterval(() => {
+      void fetchCoachProfile()
+        .then(setSnapshot)
+        .catch(() => undefined);
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [writeupStatus]);
+
   const profile = snapshot?.profile ?? null;
+  const writeup = snapshot?.writeup;
   const intro = active
     ? 'The engine is still reading every imported move. The writeup comes later.'
-    : profile
-      ? 'Raw counts from the engine pass. Every row is from your games. The writeup is not written yet.'
-      : 'The living coach document. Every claim will be tied to your own games, in the same voice as the sample writeups.';
+    : writeup?.document
+      ? 'Every claim is tied to your games. The snapshot underneath is the raw counts.'
+      : profile
+        ? 'Raw counts from the engine pass. The coach document is the voice — write it when you are ready.'
+        : 'The living coach document. Every claim will be tied to your own games, in the same voice as the sample writeups.';
 
   return (
     <DashboardWell>
       <PageIntro folio="Profile" title="Who you are.">
         {intro}
       </PageIntro>
-      <ProfileBody pass={pass} snapshot={snapshot} profile={profile} active={active} />
+      <ProfileBody
+        pass={pass}
+        snapshot={snapshot}
+        profile={profile}
+        active={active}
+        busy={busy}
+        onGenerate={() => {
+          setBusy(true);
+          void queueWriteup()
+            .then((next) => {
+              setSnapshot((current) => (current ? { ...current, writeup: next } : current));
+            })
+            .catch((err: unknown) => showError(trainingErrorMessage(err)))
+            .finally(() => setBusy(false));
+        }}
+      />
     </DashboardWell>
   );
 }
@@ -69,11 +100,15 @@ function ProfileBody({
   snapshot,
   profile,
   active,
+  busy,
+  onGenerate,
 }: {
   pass: PublicUser['enginePass'];
-  snapshot: PublicProfile | null | undefined;
-  profile: PublicProfile['profile'];
+  snapshot: PublicCoachProfile | null | undefined;
+  profile: PublicCoachProfile['profile'];
   active: boolean;
+  busy: boolean;
+  onGenerate: () => void;
 }) {
   if (active) {
     return (
@@ -113,7 +148,12 @@ function ProfileBody({
   }
 
   if (pass.status === 'ready' && profile) {
-    return <SnapshotDesk profile={profile} />;
+    return (
+      <div className="flex flex-col gap-10">
+        <WriteupDesk writeup={snapshot!.writeup} onGenerate={onGenerate} busy={busy} />
+        <SnapshotDesk profile={profile} />
+      </div>
+    );
   }
 
   return (

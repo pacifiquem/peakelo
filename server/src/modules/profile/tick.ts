@@ -6,6 +6,8 @@ import { getPrisma } from '../../db/prisma';
 import { logger } from '../../lib/logger';
 import { getDefaultAdapter, type EngineAdapter } from '../engine';
 import { parseAnalysisPlies, summarizeAnalyses } from './service';
+import { isWriteupConfigured } from '../training/agent';
+import { getPublicWriteup, queueWriteup, reinforceUser } from '../training/service';
 
 const ERROR_MAX = 2000;
 
@@ -205,6 +207,16 @@ async function refreshEnginePass(userId: string, now: Date): Promise<void> {
       },
     });
     logger.info({ userId, gamesReady: counts.gamesReady }, 'engine pass ready');
+    try {
+      const writeup = await getPublicWriteup(userId);
+      if (writeup.status === 'ready') {
+        await reinforceUser(userId);
+      } else if (isWriteupConfigured() && (writeup.status === 'idle' || writeup.status === 'failed')) {
+        await queueWriteup(userId);
+      }
+    } catch (error) {
+      logger.warn({ err: error, userId }, 'could not queue writeup or reinforce after engine pass');
+    }
   } catch (error) {
     const message = clipError(error);
     logger.error({ err: error, userId }, 'engine pass snapshot failed');

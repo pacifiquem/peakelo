@@ -63,3 +63,27 @@ _Avoid_: player type, class D, beginner (as a stored label)
 **Game brief**:
 The whole-game lesson written before ply lessons: what decided it, key plies, opening. Cached per game.
 _Avoid_: summary, recap, accuracy report
+
+**Writeup**:
+The living coach document for this player, generated from the bare profile. One voice, every claim cited.
+_Avoid_: essay, report, blog, snapshot (that's the raw counts)
+
+**Roadmap**:
+The ordered syllabus from this writeup toward the next course skill band.
+_Avoid_: course catalog, trail, XP tree
+
+**Drill**:
+One position from the player's own games with one job. The student moves.
+_Avoid_: puzzle, tactic of the day, Puzzle Storm
+
+**Drill attempt**:
+One try at a drill — hit, miss, or abandoned.
+_Avoid_: score, XP, stars
+
+**Reinforcement**:
+Updating the drill queue from newly analyzed games and recent attempts.
+_Avoid_: adaptive algorithm, spaced repetition (as a product name), ML
+
+**Public review**:
+A single public Chess.com or Lichess game fetched from a pasted URL, engine-passed and coached without an account.
+_Avoid_: demo, widget, sample game (as invented PGN)

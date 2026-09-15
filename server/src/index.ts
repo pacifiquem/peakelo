@@ -6,6 +6,8 @@ import { startCron, stopCron } from './modules/cron';
 import { closeDefaultAdapter } from './modules/engine';
 import { recoverInterruptedImports } from './modules/games/import-games';
 import { recoverInterruptedEnginePasses } from './modules/profile/service';
+import { recoverInterruptedPublicReviews } from './modules/preview/service';
+import { recoverInterruptedWriteups } from './modules/training/service';
 
 const app = buildApp();
 
@@ -23,6 +25,14 @@ async function start() {
     const recoveredPasses = await recoverInterruptedEnginePasses();
     if (recoveredPasses > 0) {
       logger.warn({ recovered: recoveredPasses }, 'requeued interrupted engine analyses');
+    }
+    const recoveredWriteups = await recoverInterruptedWriteups();
+    if (recoveredWriteups > 0) {
+      logger.warn({ recovered: recoveredWriteups }, 'requeued interrupted writeups');
+    }
+    const recoveredReviews = await recoverInterruptedPublicReviews();
+    if (recoveredReviews > 0) {
+      logger.warn({ recovered: recoveredReviews }, 'requeued interrupted public reviews');
     }
     startCron();
     logger.info(`server listening on http://${env.HOST}:${env.PORT}`);

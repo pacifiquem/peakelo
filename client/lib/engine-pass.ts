@@ -1,4 +1,4 @@
-import type { EnginePass, EnginePassStatus, Overlooked } from '@peakelo/shared';
+import { OVERLOOKED_LABEL, type EnginePass, type EnginePassStatus, type Overlooked } from '@peakelo/shared';
 
 export function isEnginePassActive(status: EnginePassStatus): boolean {
   return status === 'queued' || status === 'running';
@@ -22,19 +22,8 @@ export function formatAvgTimeMs(ms: number | null): string {
   return `${(ms / 1000).toFixed(1)} s`;
 }
 
-const OVERLOOKED_LABELS: Record<Overlooked, string> = {
-  hanging_piece: 'Hanging piece',
-  missed_hanging: 'Missed hanging',
-  missed_capture: 'Missed capture',
-  missed_check: 'Missed check',
-  missed_mate: 'Missed mate',
-  missed_combination: 'Missed combination',
-  material_loss: 'Material loss',
-  time_scramble: 'Time scramble',
-};
-
 export function overlookedLabel(tag: Overlooked): string {
-  return OVERLOOKED_LABELS[tag];
+  return OVERLOOKED_LABEL[tag];
 }
 
 export function tacticDepthLabel(depth: number): string {

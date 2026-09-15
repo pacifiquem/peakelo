@@ -10,6 +10,7 @@ export {
   replayPgn,
   uciSquares,
 } from './pgn';
+export { isPawnPromotion, legalDests, sideToMove, uciFromSquares } from './dests';
 export type { BoardPiece, PieceRole, ReplayPly, ReplayedGame } from './pgn';
 export { parseClkComment, parseTimeControlHeader, timeSpentMs } from './clocks';
 export { cplFromScores, judgmentFromCpl } from './eval';
