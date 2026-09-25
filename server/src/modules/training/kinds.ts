@@ -13,8 +13,26 @@ export const STEP_KIND: Record<string, DrillKind> = {
   make_plan: 'make_plan',
 };
 
+const KIND_SLUGS = [
+  'blunder-preventer',
+  'replay-mistake',
+  'defend-worse',
+  'convert-advantage',
+  'make-a-plan',
+] as const;
+
 export function kindFromStepId(stepId: string): DrillKind {
-  return STEP_KIND[stepId] ?? 'replay_mistake';
+  const key = stepId.trim().toLowerCase().replace(/[_\s]+/g, '-');
+  const exact = STEP_KIND[key] ?? STEP_KIND[stepId];
+  if (exact) return exact;
+  const slugs = [...KIND_SLUGS].sort((a, b) => b.length - a.length);
+  for (const slug of slugs) {
+    if (key === slug || key.startsWith(`${slug}-`)) {
+      const kind = STEP_KIND[slug];
+      if (kind) return kind;
+    }
+  }
+  return 'replay_mistake';
 }
 
 export function kindsForBand(band: CourseSkillBand): DrillKind[] {

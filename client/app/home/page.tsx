@@ -106,7 +106,8 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
             <p className="font-mono text-sm text-text-sub-600">Headline</p>
             <h2 className="mt-2 font-display text-2xl font-extrabold">{desk.writeup.document.headline}</h2>
             <p className="mt-2 font-mono text-sm">
-              Goal: {desk.progress.goalLabel} · {desk.progress.stepsDone}/{desk.progress.stepsTotal} steps ·{' '}
+              Goal: {desk.progress.goalLabel} · {desk.progress.stepsDone}/{desk.progress.stepsTotal}{' '}
+              steps · {desk.progress.drillsDone}/{desk.progress.drillsTotal} positions cleared ·{' '}
               {desk.progress.drillsDue} due
             </p>
           </section>
@@ -187,17 +188,17 @@ function plate00(
       };
     }
     return {
-      title: waiting > 0 ? 'Your games are in.' : 'Snapshot is ready.',
+      title: waiting > 0 ? 'Your games are in.' : 'The pass is ready.',
       body: (
         <p>
-          The raw snapshot is on your{' '}
+          The engine has read your games.{' '}
           <Link
             href="/profile"
             className="font-display font-bold underline decoration-2 underline-offset-4"
           >
-            profile
+            Write who you are
           </Link>
-          . The writeup is not written yet.
+          .
         </p>
       ),
     };

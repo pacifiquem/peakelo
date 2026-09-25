@@ -7,6 +7,7 @@ import { legalDests, sideToMove, type Color, type Square } from '@peakelo/engine
 import '@lichess-org/chessground/assets/chessground.base.css';
 import '@lichess-org/chessground/assets/chessground.cburnett.css';
 import '@/components/chess/chessground.green.css';
+import { cn } from '@/utils/cn';
 
 type Ground = ReturnType<typeof Chessground>;
 
@@ -24,6 +25,7 @@ export function LichessBoard({
   dests,
   movableColor,
   onMove,
+  className,
 }: {
   fen: string;
   orientation: Color;
@@ -32,6 +34,7 @@ export function LichessBoard({
   dests?: Record<string, string[]>;
   movableColor?: Color;
   onMove?: (from: Square, to: Square) => void;
+  className?: string;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const api = useRef<Ground | null>(null);
@@ -68,7 +71,7 @@ export function LichessBoard({
   }, [fen, orientation, last, lastMove, shapeKey, shapes, destKey, dests, movableColor]);
 
   return (
-    <div className="w-full max-w-[min(100%,560px)] border-2 border-ink bg-board">
+    <div className={cn('w-full max-w-[min(100%,560px)] border-2 border-ink bg-board', className)}>
       <div ref={host} className="aspect-square w-full" />
     </div>
   );

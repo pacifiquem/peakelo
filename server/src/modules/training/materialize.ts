@@ -51,21 +51,23 @@ export function materializeSyllabus(input: {
   const allowed = new Set(allowedList.length > 0 ? allowedList : kindsForBand(input.band));
   const existing = input.existingKeys ?? new Set<string>();
   const steps: DraftStep[] = [];
+  const usedIds = new Set<string>();
 
   for (const item of input.writeup.now) {
     const kind = kindFromStepId(item.stepId);
     if (!allowed.has(kind)) continue;
+    const stepId = uniqueStepId(item.stepId, usedIds);
     const drafts = draftsFromCitations({
       citations: item.citations,
       kind,
-      stepId: item.stepId,
+      stepId,
       why: item.why,
       analyses: input.analyses,
       existingKeys: existing,
     });
     if (drafts.length === 0) continue;
     steps.push({
-      id: item.stepId,
+      id: stepId,
       kind,
       title: item.title,
       why: item.why,
@@ -190,6 +192,21 @@ function fallbackFromSnapshot(
     leak: group.overlooked,
     drafts,
   };
+}
+
+function uniqueStepId(stepId: string, used: Set<string>): string {
+  if (!used.has(stepId)) {
+    used.add(stepId);
+    return stepId;
+  }
+  let n = 2;
+  let next = `${stepId}-${n}`;
+  while (used.has(next)) {
+    n += 1;
+    next = `${stepId}-${n}`;
+  }
+  used.add(next);
+  return next;
 }
 
 function unique(values: string[]): string[] {

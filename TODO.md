@@ -13,6 +13,11 @@
 
 ## Done
 
+- [x] Study-desk layout: `/games/[id]` and `/drills/[id]` keep the board beside the lesson (mobile Board/Lesson tabs)
+- [x] `/profile` chapters are real child routes; bare engine snapshot is not a student page
+- [x] `/drills` is one card per leak; `/drills/blunder-preventer` lists the moments
+- [x] Drill and roadmap progress: cleared/total meters, completed list with cleared-at
+
 - [x] Root pnpm workspace (`client`, `server`, `packages/shared`, `packages/engine`)
 - [x] `AGENTS.md` §3.1 / §3.2: exact `shared` vs `engine` rules
 - [x] Fastify health server with typed errors

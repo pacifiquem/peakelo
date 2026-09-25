@@ -22,8 +22,9 @@ Steps from the product def only:
 - Convert advantage
 - Make a plan (intermediate+)
 
-Each step: skill, why (a profile sentence), evidence games, drill ids, done-when that is
-behavioral (“you stop hanging the English bishop to …Bh3 in the next 15 White games”), not XP.
+Each step comes from a `now[]` action on the writeup — one per named leak, not a fixed three.
+Skill, why (a profile sentence), evidence games, drill ids, done-when that is behavioral
+(“you stop hanging the English bishop to …Bh3 in the next 15 White games”), not XP.
 Current step gets the one gold rule. In-page `#s3`, no `/roadmap/[step]`.
 
 Empty without a profile: “A roadmap without a profile is a generic tactics book. Wait for the
@@ -39,8 +40,14 @@ Empty queue plate.
 
 ### Later
 
-Group by roadmap step or type. Row: type, one-line stem from their game, source game, last
-attempt. Filters: type, due / done. No drill until the roadmap names a leak.
+`/drills` is a **set index**: one card per drill kind (Blunder-preventer, Replay the miss, …),
+not a list of every position. Click a set → `/drills/blunder-preventer` (kind slug) for the
+moments from their games, then `/drills/[id]` to replay one. Due / done lives on the set page.
+Progress is live from stored attempts: each set and each syllabus step shows cleared / total
+positions. Hitting a drill marks it done and it stays on the Done list with the time it was
+cleared. Roadmap steps link to that ledger. Not XP.
+
+No drill until the roadmap names a leak.
 
 ## `/drills/[id]`
 

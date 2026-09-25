@@ -34,11 +34,14 @@ export async function fetchRoadmap(): Promise<{ roadmap: PublicRoadmap | null }>
   return api<{ roadmap: PublicRoadmap | null }>('/roadmap');
 }
 
-export async function fetchDrills(query: { status?: string; kind?: string; page?: number } = {}) {
+export async function fetchDrills(
+  query: { status?: string; kind?: string; page?: number; pageSize?: number } = {},
+) {
   const params = new URLSearchParams();
   if (query.status) params.set('status', query.status);
   if (query.kind) params.set('kind', query.kind);
   if (query.page) params.set('page', String(query.page));
+  if (query.pageSize) params.set('pageSize', String(query.pageSize));
   const suffix = params.size > 0 ? `?${params.toString()}` : '';
   return api<PaginatedResult<PublicDrill>>(`/drills${suffix}`);
 }

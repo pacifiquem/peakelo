@@ -45,6 +45,7 @@ import { generateWriteupWithAgent, isWriteupConfigured, parseGeneratedWriteup, t
 import { destsForFen, gradeDrillMove, type EngineLine } from './grade';
 import { hitInsight, missInsight } from './insights';
 import { kindFromStepId, resolveTrainingFocus } from './kinds';
+import { attachDrillProgress, countCompleted, summarizeSets } from './progress';
 import { applyReinforcement, countRecentLeaks, recentGameIds, shouldAddMoreDrills } from './reinforce';
 import { requestEngineLines } from '../lesson/tools';
 import { getDefaultAdapter } from '../engine';
@@ -93,7 +94,9 @@ export async function getRoadmap(userId: string): Promise<PublicRoadmap | null> 
   const row = await getPrisma().roadmap.findUnique({ where: { userId } });
   if (!row) return null;
   const parsed = publicRoadmapSchema.safeParse(row.payload);
-  return parsed.success ? parsed.data : null;
+  if (!parsed.success) return null;
+  const drills = await loadProgressRows(userId);
+  return attachDrillProgress(parsed.data, drills);
 }
 
 export async function queueWriteup(userId: string, refresh = false): Promise<PublicWriteup> {
@@ -166,7 +169,10 @@ export async function listDrills(userId: string, query: Record<string, unknown>)
     getPrisma().drill.count({ where }),
     getPrisma().drill.findMany({
       where,
-      orderBy: [{ dueAt: 'asc' }, { createdAt: 'asc' }],
+      orderBy:
+        parsed.status === 'done'
+          ? [{ lastAttemptAt: 'desc' }, { createdAt: 'desc' }]
+          : [{ dueAt: 'asc' }, { createdAt: 'asc' }],
       skip: (parsed.page - 1) * parsed.pageSize,
       take: parsed.pageSize,
     }),
@@ -385,6 +391,8 @@ export async function generateAndStore(userId: string, deps: TrainingDeps = {}):
       evidenceGameIds: step.evidenceGameIds,
       drillIds: byStep.get(step.id) ?? [],
       leak: step.leak,
+      drillsDone: 0,
+      drillsTotal: (byStep.get(step.id) ?? []).length,
     })),
   };
 
@@ -543,10 +551,10 @@ async function recordAttempt(
 }
 
 async function getProgress(userId: string): Promise<TrainingProgress> {
-  const [onboarding, roadmap, due, weekHits, snapshot] = await Promise.all([
+  const [onboarding, roadmap, drills, weekHits, snapshot] = await Promise.all([
     getPrisma().onboarding.findUnique({ where: { userId } }),
     getRoadmap(userId),
-    getPrisma().drill.count({ where: { userId, status: 'due' } }),
+    loadProgressRows(userId),
     getPrisma().drillAttempt.count({
       where: {
         userId,
@@ -578,13 +586,17 @@ async function getProgress(userId: string): Promise<TrainingProgress> {
     orderBy: { dueAt: 'asc' },
   });
   const steps = roadmap?.steps ?? [];
+  const counts = countCompleted(drills);
   return {
     goal,
     goalLabel: roadmap?.goldRule ?? TRAINING_FOCUS_LABELS[goal === 'unknown' ? 'rating' : goal],
     stepsDone: steps.filter((step) => step.status === 'done').length,
     stepsTotal: steps.length,
-    drillsDue: due,
+    drillsDue: counts.due,
+    drillsDone: counts.done,
+    drillsTotal: counts.total,
     drillsDoneThisWeek: weekHits,
+    sets: summarizeSets(drills),
     leaksStillPresent: leaks.map((item) => ({
       overlooked: item.overlooked,
       label: OVERLOOKED_LABEL[item.overlooked],
@@ -607,6 +619,13 @@ async function requireDrill(userId: string, drillId: string) {
   const drill = await getPrisma().drill.findFirst({ where: { id: drillId, userId } });
   if (!drill) throw new NotFoundError('Drill');
   return drill;
+}
+
+async function loadProgressRows(userId: string) {
+  return getPrisma().drill.findMany({
+    where: { userId, status: { not: 'retired' } },
+    select: { kind: true, stepId: true, status: true },
+  });
 }
 
 function toPublicDrill(row: {

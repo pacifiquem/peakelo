@@ -125,14 +125,15 @@ call into `games` / later domains; do not put `setInterval` in those modules.
 The logged-out landing is `/`. A visitor may paste a Chess.com or Lichess game URL for a
 public engine + coach review (ADR 0013) — real fetch, no invented PGN. After onboarding the
 default logged-in surface is `/home`. Dashboard IA and empty-state
-contracts live in `docs/adr/0002-logged-in-dashboard.md` through `0007`. The bare engine
-snapshot (ADR 0008) may appear on `/profile` and as a pass-progress line in chrome. The
-instructive **writeup**, **roadmap**, and playable **drills** (ADR 0012) are generated from
-that snapshot — never from invented FENs. On
-`/games/[id]`, an eval bar, best-move arrow, and ply glyphs are allowed only from stored
-engine analysis (ADR 0005). The instructive **lesson** (ADR 0010) may add teaching arrows and
-clickable lines, but those arrows come from the lesson payload, never from invented eval.
-Do not invent player types, evals, or drill positions.
+contracts live in `docs/adr/0002-logged-in-dashboard.md` through `0007`. `/profile` is the
+coach writeup as **child routes** (`/profile/mistakes`, `/profile/clock`, …). Students do not
+see the bare engine snapshot (ACPL tables, FEN fingerprints, opening ledgers). That JSON still
+feeds the writeup (ADR 0008 / 0012). `/drills` is one card per leak; `/drills/blunder-preventer`
+(kind slug) lists the moments; `/drills/[id]` is the playable board. On `/games/[id]`, the board
+and the lesson sit side by side (study desk); an eval bar, best-move arrow, and ply glyphs are
+allowed only from stored engine analysis (ADR 0005). The instructive **lesson** (ADR 0010) may
+add teaching arrows and clickable lines, but those arrows come from the lesson payload, never
+from invented eval. Do not invent player types, evals, or drill positions.
 
 **To test the dashboard or the engine pass, import real public games.** Do not invent
 fixtures. Pick a Chess.com username from
