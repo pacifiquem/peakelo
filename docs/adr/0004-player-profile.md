@@ -1,32 +1,33 @@
 # `/profile` — who this player is
 
 The living coach document. Same job as `docs/projectdef/sample-bare-analysis/`: one voice, every
-claim tied to this player’s games. One page with in-page anchors, not child routes.
+claim tied to this player’s games. Students never see the bare engine snapshot (ACPL tables,
+pawn-structure FEN fingerprints, opening win-rate ledgers). That JSON still feeds the writeup
+(ADR 0008 / 0012). The UI is the writeup, in **real child routes**, one chapter per page.
 
-## On the desk now
+| Route | Chapter |
+| --- | --- |
+| `/profile` | Diagnosis + every named bottleneck from the writeup + chapter list |
+| `/profile/deciders` | How games are decided |
+| `/profile/clock` | Clock |
+| `/profile/mistakes` | Recurring mistakes (named patterns only) |
+| `/profile/structures` | Structures and lines that leak |
+| `/profile/tactics` | Named tactic groups you miss |
+| `/profile/keep` | Keep these |
+| `/profile/now` | What to do (roadmap actions — not a cap of three) |
 
-The **bare snapshot** from ADR 0008 once the engine pass is ready: openings, structures,
-mistakes, tactics, and clock tables with citations. A persistent chrome line while the pass
-runs. No guessed player type, no radar, no writeup voice.
+`/profile/snapshot` redirects to `/profile`. Do not put engine counts in the rail or on the
+student desk.
 
-## Later (after the writeup)
+Landing is the product: the headline, one paragraph of *why*, then **every named bottleneck**
+the coach found (mistakes, tactics, structures, clock) — not a top-three. Each leak links to
+its chapter and to the matching drill set. `/profile/now` is the action plan; its length follows
+the writeup, not a cap of three. Chapters stay one essay per URL.
 
-In this order, matching the sample writeups:
+**Considered:** in-page tabs / `?section=` on one URL. Rejected — it still presents the dump;
+people scroll the same wall. Child routes are the organization.
 
-1. **Headline** (`#headline`) — player type in words (positional / tactical / gambiteer / mixed),
-   time-control scoped.
-2. **How games are decided** (`#deciders`) — mechanisms (hangs, time, conversion), not a results
-   widget as the story. A record may appear inside a teaching sentence.
-3. **Clock** (`#clock`) — time/move: flagger vs rusher vs dying in the last twenty seconds.
-4. **Recurring mistakes** (`#mistakes`) — named patterns; each cites 2–5 of their games.
-5. **Structures and lines** (`#structures`) — struggle by accuracy in the line, not win/loss.
-6. **Tactics** (`#tactics`) — including 3–4 move combinations they miss and the ones they already
-   see.
-7. **Keep these** (`#keep`) — strengths the roadmap must not “fix.”
-8. **Three things now** (`#now`) — each links to a roadmap step (Training) or to the cited games
-   (Analysis).
-
-Cited game names are links to `/games/[id]?ply=`. A profile with no links is a blog post.
+Cited moments are links to `/games/[id]?ply=`. A profile with no links is a blog post.
 
 ## Empty copy
 

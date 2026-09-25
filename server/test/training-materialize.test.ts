@@ -110,6 +110,36 @@ describe('materializeSyllabus', () => {
     });
   });
 
+  it('keeps every now[] action as its own step when they share a kind', () => {
+    const secondPly = { ...ply, ply: 2 };
+    const secondCitation = { ...citation, ply: 2 };
+    const syllabus = materializeSyllabus({
+      writeup: {
+        ...writeup,
+        now: [
+          {
+            title: 'Stop hanging pieces',
+            why: 'Hangs.',
+            stepId: 'blunder-preventer',
+            citations: [citation],
+          },
+          {
+            title: 'Scan checks',
+            why: 'Missed mates.',
+            stepId: 'blunder-preventer',
+            citations: [secondCitation],
+          },
+        ],
+      },
+      snapshot,
+      analyses: new Map([['game-1', [ply, secondPly]]]),
+      band: 'from1600to2000',
+      goal: 'blunders',
+    });
+    expect(syllabus.steps.map((step) => step.id)).toEqual(['blunder-preventer', 'blunder-preventer-2']);
+    expect(syllabus.steps.every((step) => step.kind === 'blunder_preventer')).toBe(true);
+  });
+
   it('keeps a replay drill for an Under 400 student instead of an empty syllabus', () => {
     const syllabus = materializeSyllabus({
       writeup: {

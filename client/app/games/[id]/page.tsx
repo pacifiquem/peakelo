@@ -7,11 +7,10 @@ import type { GameSource, PublicGameDetail } from '@peakelo/shared';
 
 import { AppShell } from '@/components/app-shell';
 import { GameEditor } from '@/components/chess/game-editor';
+import { Breadcrumb } from '@/components/dashboard/breadcrumb';
 import { DashboardGate } from '@/components/dashboard/dashboard-gate';
 import { DashboardWell } from '@/components/dashboard/dashboard-well';
 import { EmptyPlate } from '@/components/dashboard/empty-plate';
-import { PageIntro } from '@/components/dashboard/page-intro';
-import { PlannedList } from '@/components/dashboard/planned-list';
 import * as Button from '@/components/ui/button';
 import { showError } from '@/components/ui/toast';
 import { api } from '@/lib/api';
@@ -50,7 +49,7 @@ function GameLesson({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) 
         router.replace(`/games?source=${source}`);
       }}
     >
-      <DashboardWell>
+      <DashboardWell size="study">
         {game === undefined ? (
           <p className="text-text-sub-600">Loading the scoresheet…</p>
         ) : null}
@@ -71,15 +70,24 @@ function GameLesson({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) 
 
         {game ? (
           <>
-            <PageIntro
-              folio={`${game.timeControl} · you as ${game.userColor}`}
-              title={`${game.whiteName} vs ${game.blackName}`}
-            >
-              {game.result} · {new Date(game.playedAt).toLocaleString()}. The scoresheet is real.
-              {game.analysis.status === 'ready'
-                ? ' The bar and glyphs are from the engine pass. Click a sentence to walk the line.'
-                : ' Engine marks wait for the pass. The lesson still reads the board.'}
-            </PageIntro>
+            <Breadcrumb
+              items={[
+                { label: 'Games', href: '/games' },
+                { label: `${game.whiteName} vs ${game.blackName}` },
+              ]}
+            />
+            <header className="flex flex-col gap-1">
+              <h1 className="font-display text-2xl font-extrabold tracking-tight md:text-3xl">
+                {game.whiteName} vs {game.blackName}
+              </h1>
+              <p className="font-mono text-sm text-text-strong-950">
+                {game.timeControl} · you as {game.userColor} · {game.result} ·{' '}
+                <time dateTime={game.playedAt}>{new Date(game.playedAt).toLocaleString()}</time>
+                {game.analysis.status === 'ready'
+                  ? ' · engine marks on the scoresheet'
+                  : ' · engine marks wait for the pass'}
+              </p>
+            </header>
             <GameEditor
               gameId={game.id}
               pgn={game.pgn}
@@ -88,20 +96,6 @@ function GameLesson({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) 
             />
           </>
         ) : null}
-
-        <PlannedList
-          adr="docs/adr/0005-games-and-analysis.md"
-          items={[
-            {
-              title: 'Footer',
-              detail: 'This pattern is [named mistake] → profile. Drill this → /drills/[id].',
-            },
-            {
-              title: 'Unlock',
-              detail: 'If there is no plan: one game writeup is $1.22 → /billing?intent=game.',
-            },
-          ]}
-        />
       </DashboardWell>
     </AppShell>
   );

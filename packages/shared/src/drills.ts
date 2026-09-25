@@ -131,16 +131,26 @@ export const roadmapStepSchema = z.object({
   evidenceGameIds: z.array(z.string()).max(12),
   drillIds: z.array(z.string()).max(40),
   leak: overlookedSchema.nullable(),
+  drillsDone: z.number().int().nonnegative().default(0),
+  drillsTotal: z.number().int().nonnegative().default(0),
 });
 export type RoadmapStep = z.infer<typeof roadmapStepSchema>;
 
 export const publicRoadmapSchema = z.object({
   goldRule: z.string().min(1).max(200),
   goal: trainingFocusSchema,
-  steps: z.array(roadmapStepSchema).min(1).max(8),
+  steps: z.array(roadmapStepSchema).min(1).max(24),
   generatedAt: z.string().datetime(),
 });
 export type PublicRoadmap = z.infer<typeof publicRoadmapSchema>;
+
+export const drillSetProgressSchema = z.object({
+  kind: drillKindSchema,
+  due: z.number().int().nonnegative(),
+  done: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+});
+export type DrillSetProgress = z.infer<typeof drillSetProgressSchema>;
 
 export const trainingProgressSchema = z.object({
   goal: trainingFocusSchema,
@@ -148,7 +158,10 @@ export const trainingProgressSchema = z.object({
   stepsDone: z.number().int().nonnegative(),
   stepsTotal: z.number().int().nonnegative(),
   drillsDue: z.number().int().nonnegative(),
+  drillsDone: z.number().int().nonnegative(),
+  drillsTotal: z.number().int().nonnegative(),
   drillsDoneThisWeek: z.number().int().nonnegative(),
+  sets: z.array(drillSetProgressSchema).max(5),
   leaksStillPresent: z.array(
     z.object({
       overlooked: overlookedSchema,

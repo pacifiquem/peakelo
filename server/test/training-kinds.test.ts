@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { START_FEN } from '@peakelo/engine';
 import type { BareProfile } from '@peakelo/shared';
-import { resolveTrainingFocus } from '../src/modules/training/kinds';
+import { kindFromStepId, resolveTrainingFocus } from '../src/modules/training/kinds';
 
 const citation = {
   gameId: 'g1',
@@ -40,6 +40,15 @@ function snapshot(overrides: Partial<BareProfile> = {}): BareProfile {
     ...overrides,
   };
 }
+
+describe('kindFromStepId', () => {
+  it('reads a kind prefix when two actions share a step family', () => {
+    expect(kindFromStepId('blunder-preventer')).toBe('blunder_preventer');
+    expect(kindFromStepId('blunder-preventer-hanging')).toBe('blunder_preventer');
+    expect(kindFromStepId('blunder-preventer-2')).toBe('blunder_preventer');
+    expect(kindFromStepId('make-a-plan-english')).toBe('make_plan');
+  });
+});
 
 describe('resolveTrainingFocus', () => {
   it('keeps an explicit onboarding focus', () => {

@@ -69,11 +69,17 @@ export function PublicReviewDesk({ review }: { review: PublicReview }) {
   ];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)]">
-      <div className="flex flex-col gap-3">
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)]">
+      <div className="flex flex-col gap-3 lg:sticky lg:top-16">
         <div className="flex items-stretch gap-2">
           {evalScore ? <EvalBar score={evalScore} orientation={orientation} /> : null}
-          <LichessBoard fen={fen} orientation={orientation} lastMove={lastMove} shapes={shapes} />
+          <LichessBoard
+            fen={fen}
+            orientation={orientation}
+            lastMove={lastMove}
+            shapes={shapes}
+            className="max-w-full"
+          />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Nav disabled={ply === 0} label="Start position" onClick={() => setPly(0)}>

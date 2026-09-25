@@ -16,7 +16,7 @@ Hybrid chrome: a sticky masthead plus a thin left rail. Five teaching destinatio
 | Item | Route |
 | --- | --- |
 | Home | `/home` (default after onboarding) |
-| Profile | `/profile` |
+| Profile | `/profile` (chapters under `/profile/[section]`) |
 | Games | `/games` |
 | Roadmap | `/roadmap` |
 | Drills | `/drills` |

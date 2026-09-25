@@ -58,6 +58,13 @@ describe('writeupSchema', () => {
     expect(playerKindSchema.options).toContain('mixed');
     expect(idleWriteup().status).toBe('idle');
     expect(() => writeupSchema.parse({ ...document, now: [] })).toThrow();
+    const many = Array.from({ length: 8 }, (_, index) => ({
+      title: `Leak ${index + 1}`,
+      why: 'A named leak from the snapshot.',
+      stepId: index % 2 === 0 ? 'blunder-preventer' : 'replay-mistake',
+      citations: [citation],
+    }));
+    expect(writeupSchema.parse({ ...document, now: many }).now).toHaveLength(8);
   });
 
   it('normalizes step ids and hydrates citation refs from the snapshot', () => {

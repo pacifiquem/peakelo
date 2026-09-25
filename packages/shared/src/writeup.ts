@@ -30,6 +30,8 @@ export const writeupNowItemSchema = z.object({
 });
 export type WriteupNowItem = z.infer<typeof writeupNowItemSchema>;
 
+export const MAX_WRITEUP_NOW = 24;
+
 export const writeupSchema = z.object({
   headline: z.string().min(1).max(200),
   playerKind: playerKindSchema,
@@ -53,7 +55,7 @@ export const writeupSchema = z.object({
   structures: z.array(citedBlockSchema).max(6),
   tactics: z.array(citedBlockSchema).max(6),
   keep: z.array(citedBlockSchema).max(6),
-  now: z.array(writeupNowItemSchema).min(1).max(5),
+  now: z.array(writeupNowItemSchema).min(1).max(MAX_WRITEUP_NOW),
 });
 export type Writeup = z.infer<typeof writeupSchema>;
 
@@ -90,7 +92,7 @@ export const writeupDraftSchema = writeupSchema.extend({
   structures: z.array(citedBlockDraftSchema).max(6),
   tactics: z.array(citedBlockDraftSchema).max(6),
   keep: z.array(citedBlockDraftSchema).max(6),
-  now: z.array(writeupNowDraftSchema).min(1).max(5),
+  now: z.array(writeupNowDraftSchema).min(1).max(MAX_WRITEUP_NOW),
 });
 export type WriteupDraft = z.infer<typeof writeupDraftSchema>;
 

@@ -4,16 +4,18 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { applyUciLine, legalDests, type Square } from '@peakelo/engine';
-import type { DrillInsight, DrillPlay, EvalScore, Lesson } from '@peakelo/shared';
+import { DRILL_KIND_LABEL, type DrillInsight, type DrillPlay, type EvalScore, type Lesson } from '@peakelo/shared';
 
 import { AppShell } from '@/components/app-shell';
 import { DrillDesk, fenAfterLine, lastMoveFromUci } from '@/components/drills/drill-desk';
+import { KindSetDesk } from '@/components/drills/kind-set-desk';
+import { Breadcrumb } from '@/components/dashboard/breadcrumb';
 import { DashboardGate } from '@/components/dashboard/dashboard-gate';
 import { DashboardWell } from '@/components/dashboard/dashboard-well';
 import { EmptyPlate } from '@/components/dashboard/empty-plate';
-import { PageIntro } from '@/components/dashboard/page-intro';
 import * as Button from '@/components/ui/button';
 import { showError } from '@/components/ui/toast';
+import { drillKindFromSlug, drillKindHref } from '@/lib/drill-kind';
 import { askDrill, fetchDrill, fetchTrainingDesk, playDrillMove, trainingErrorMessage } from '@/lib/training';
 
 export default function DrillSessionPage() {
@@ -21,11 +23,18 @@ export default function DrillSessionPage() {
     <DashboardGate>
       {(user) => (
         <AppShell user={user}>
-          <Session />
+          <DrillIdRouter />
         </AppShell>
       )}
     </DashboardGate>
   );
+}
+
+function DrillIdRouter() {
+  const params = useParams<{ id: string }>();
+  const kind = drillKindFromSlug(params.id);
+  if (kind) return <KindSetDesk kind={kind} />;
+  return <Session />;
 }
 
 function Session() {
@@ -58,8 +67,8 @@ function Session() {
         setEvalScore(data.eval);
         void fetchTrainingDesk()
           .then((desk) => {
-            const next = desk.dueDrills.find((item) => item.id !== params.id);
-            setNextHref(next ? `/drills/${next.id}` : '/drills');
+            const next = desk.dueDrills.find((item) => item.id !== params.id && item.kind === data.kind);
+            setNextHref(next ? `/drills/${next.id}` : drillKindHref(data.kind));
           })
           .catch(() => undefined);
       })
@@ -71,7 +80,7 @@ function Session() {
 
   if (drill === undefined) {
     return (
-      <DashboardWell>
+      <DashboardWell size="study">
         <p className="text-text-sub-600">Loading the position…</p>
       </DashboardWell>
     );
@@ -79,7 +88,7 @@ function Session() {
 
   if (drill === null) {
     return (
-      <DashboardWell>
+      <DashboardWell size="study">
         <EmptyPlate
           folio="Drill"
           title="This drill is not on this desk."
@@ -96,10 +105,21 @@ function Session() {
   }
 
   return (
-    <DashboardWell>
-      <PageIntro folio="Drill" title="One position, one job.">
-        The student moves. The stem says why this is yours.
-      </PageIntro>
+    <DashboardWell size="study">
+      <Breadcrumb
+        items={[
+          { label: 'Drills', href: '/drills' },
+          { label: DRILL_KIND_LABEL[drill.kind], href: drillKindHref(drill.kind) },
+          { label: 'This position' },
+        ]}
+      />
+      <header className="flex flex-col gap-1">
+        <h1 className="font-display text-2xl font-extrabold tracking-tight">One position, one job.</h1>
+        <p className="font-mono text-sm text-text-strong-950">
+          {DRILL_KIND_LABEL[drill.kind]}
+          {solved ? ' · cleared — on your completed list' : ''}
+        </p>
+      </header>
       <DrillDesk
         drill={drill}
         fen={fen}

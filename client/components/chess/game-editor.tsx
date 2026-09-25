@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   annotatePly,
@@ -20,6 +20,7 @@ import { AnnotationMark } from '@/components/chess/annotation-mark';
 import { EvalBar } from '@/components/chess/eval-bar';
 import { LessonDesk } from '@/components/chess/lesson-desk';
 import { LichessBoard, type BoardShape } from '@/components/chess/lichess-board';
+import { StudyDesk } from '@/components/chess/study-desk';
 import * as Button from '@/components/ui/button';
 import { askLesson, fetchGameBrief, fetchLesson, isLessonOffline, lessonErrorMessage } from '@/lib/lesson';
 import { annotationBrush } from '@/lib/move-annotation';
@@ -68,6 +69,7 @@ export function GameEditor({
   const [brief, setBrief] = useState<GameBrief | null>(null);
   const [briefReady, setBriefReady] = useState(false);
   const [asking, setAsking] = useState(false);
+  const [pane, setPane] = useState<'board' | 'panel'>('board');
   const [thread, setThread] = useState<{ ply: number; items: { role: 'player' | 'coach'; text: string }[] }>({
     ply,
     items: [],
@@ -219,6 +221,7 @@ export function GameEditor({
       return;
     }
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setPane('board');
     setVariation({
       plies: applied.plies,
       cursor: reduceMotion ? applied.plies.length : 0,
@@ -290,138 +293,161 @@ export function GameEditor({
   const atEnd = variation ? variation.cursor >= variation.plies.length : ply === maxPly;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,600px)_minmax(16rem,1fr)] lg:items-start">
-      <div className="flex flex-col gap-3">
-        <div className="flex items-stretch gap-2">
-          {evalScore ? <EvalBar score={evalScore} orientation={orientation} /> : null}
-          <LichessBoard fen={fen} orientation={orientation} lastMove={lastMove} shapes={shapes} />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button.Root
-            type="button"
-            variant="neutral"
-            mode="stroke"
-            size="small"
-            disabled={atStart}
-            onClick={() => (variation ? stepVariation(-variation.cursor) : go(0))}
-            aria-label="Start position"
-          >
-            <RiSkipLeftLine className="size-4" />
-          </Button.Root>
-          <Button.Root
-            type="button"
-            variant="neutral"
-            mode="stroke"
-            size="small"
-            disabled={atStart}
-            onClick={() => (variation ? stepVariation(-1) : go(ply - 1))}
-            aria-label="Previous move"
-          >
-            <RiArrowLeftSLine className="size-4" />
-          </Button.Root>
-          <Button.Root
-            type="button"
-            variant="neutral"
-            mode="stroke"
-            size="small"
-            disabled={atEnd}
-            onClick={() => (variation ? stepVariation(1) : go(ply + 1))}
-            aria-label="Next move"
-          >
-            <RiArrowRightSLine className="size-4" />
-          </Button.Root>
-          <Button.Root
-            type="button"
-            variant="neutral"
-            mode="stroke"
-            size="small"
-            disabled={atEnd}
-            onClick={() =>
-              variation
-                ? setVariation((current) =>
-                    current ? { ...current, cursor: current.plies.length, playing: false } : current,
-                  )
-                : go(maxPly)
-            }
-            aria-label="Last move"
-          >
-            <RiSkipRightLine className="size-4" />
-          </Button.Root>
-          <span className="font-mono text-sm text-text-strong-950">
-            {variation ? `line ${variation.cursor} / ${variation.plies.length}` : `${ply} / ${maxPly}`}
-          </span>
-          <Button.Root
-            type="button"
-            variant={showBest ? 'primary' : 'neutral'}
-            mode={showBest ? 'filled' : 'stroke'}
-            size="small"
-            disabled={!ready || !upcomingUci}
-            aria-pressed={showBest}
-            onClick={toggleBest}
-            className="w-fit"
-          >
-            Best move
-          </Button.Root>
-        </div>
-        {playedNote ? (
-          <p className="flex items-center gap-2 text-sm text-text-strong-950">
-            <AnnotationMark note={playedNote} withLabel />
-            {played && played.bestSan && played.uci !== played.bestUci ? (
-              <span className="font-mono">engine {played.bestSan}</span>
-            ) : null}
-          </p>
-        ) : null}
-        {!ready ? (
-          <p className="text-sm text-text-sub-600">
-            {analysis.status === 'failed'
-              ? 'The engine could not finish this game.'
-              : analysis.status === 'none'
-                ? 'No engine pass on this game yet.'
-                : 'This game is still in the engine pass. The bar and glyphs wait for real evals.'}
-          </p>
-        ) : null}
-      </div>
-      <MoveList plies={replayed.plies} current={ply} onSelect={go} byPly={ready ? byPly : null} />
-      <div className="lg:col-span-2">
-        {variation && variation.plies.length > 0 ? (
-          <ol className="mb-3 flex flex-wrap gap-1 font-mono text-sm">
-            {variation.plies.map((item, index) => (
-              <li key={`${item.uci}-${index}`}>
-                <button
-                  type="button"
-                  className={cn(
-                    'border-2 border-ink px-2 py-1',
-                    variation.cursor === index + 1 ? 'bg-primary-base font-bold text-text-white-0' : 'bg-bg-white-0',
-                  )}
-                  onClick={() =>
-                    setVariation((current) =>
-                      current ? { ...current, cursor: index + 1, playing: false } : current,
+    <StudyDesk
+      pane={pane}
+      onPane={setPane}
+      board={
+        <>
+          <div className="flex items-stretch gap-2">
+            {evalScore ? <EvalBar score={evalScore} orientation={orientation} /> : null}
+            <LichessBoard
+              fen={fen}
+              orientation={orientation}
+              lastMove={lastMove}
+              shapes={shapes}
+              className="max-w-full"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button.Root
+              type="button"
+              variant="neutral"
+              mode="stroke"
+              size="small"
+              disabled={atStart}
+              onClick={() => (variation ? stepVariation(-variation.cursor) : go(0))}
+              aria-label="Start position"
+            >
+              <RiSkipLeftLine className="size-4" />
+            </Button.Root>
+            <Button.Root
+              type="button"
+              variant="neutral"
+              mode="stroke"
+              size="small"
+              disabled={atStart}
+              onClick={() => (variation ? stepVariation(-1) : go(ply - 1))}
+              aria-label="Previous move"
+            >
+              <RiArrowLeftSLine className="size-4" />
+            </Button.Root>
+            <Button.Root
+              type="button"
+              variant="neutral"
+              mode="stroke"
+              size="small"
+              disabled={atEnd}
+              onClick={() => (variation ? stepVariation(1) : go(ply + 1))}
+              aria-label="Next move"
+            >
+              <RiArrowRightSLine className="size-4" />
+            </Button.Root>
+            <Button.Root
+              type="button"
+              variant="neutral"
+              mode="stroke"
+              size="small"
+              disabled={atEnd}
+              onClick={() =>
+                variation
+                  ? setVariation((current) =>
+                      current ? { ...current, cursor: current.plies.length, playing: false } : current,
                     )
-                  }
-                >
-                  {item.san}
-                </button>
-              </li>
-            ))}
-          </ol>
-        ) : null}
-        <LessonDesk
-          brief={brief}
-          lesson={lesson}
-          briefLoading={!briefReady}
-          lessonLoading={lessonLoading}
-          offline={lessonOffline}
-          error={lessonError}
-          variationActive={Boolean(variation)}
-          onEnterLine={enterLine}
-          onLeaveVariation={() => setVariation(null)}
-          onAsk={askAboutPosition}
-          onSelectPly={go}
-          onTeach={teachPly}
-          asking={asking}
-        />
-      </div>
-    </div>
+                  : go(maxPly)
+              }
+              aria-label="Last move"
+            >
+              <RiSkipRightLine className="size-4" />
+            </Button.Root>
+            <span className="font-mono text-sm text-text-strong-950">
+              {variation ? `line ${variation.cursor} / ${variation.plies.length}` : `${ply} / ${maxPly}`}
+            </span>
+            <Button.Root
+              type="button"
+              variant={showBest ? 'primary' : 'neutral'}
+              mode={showBest ? 'filled' : 'stroke'}
+              size="small"
+              disabled={!ready || !upcomingUci}
+              aria-pressed={showBest}
+              onClick={toggleBest}
+              className="w-fit"
+            >
+              Best move
+            </Button.Root>
+          </div>
+          {playedNote ? (
+            <p className="flex items-center gap-2 text-sm text-text-strong-950">
+              <AnnotationMark note={playedNote} withLabel />
+              {played && played.bestSan && played.uci !== played.bestUci ? (
+                <span className="font-mono">engine {played.bestSan}</span>
+              ) : null}
+            </p>
+          ) : null}
+          {!ready ? (
+            <p className="text-sm text-text-sub-600">
+              {analysis.status === 'failed'
+                ? 'The engine could not finish this game.'
+                : analysis.status === 'none'
+                  ? 'No engine pass on this game yet.'
+                  : 'This game is still in the engine pass. The bar and glyphs wait for real evals.'}
+            </p>
+          ) : null}
+          <MoveList plies={replayed.plies} current={ply} onSelect={go} byPly={ready ? byPly : null} />
+        </>
+      }
+      panel={
+        <div className="flex flex-col gap-3">
+          {variation && variation.plies.length > 0 ? (
+            <ol className="flex flex-wrap gap-1 font-mono text-sm">
+              {variation.plies.map((item, index) => (
+                <li key={`${item.uci}-${index}`}>
+                  <button
+                    type="button"
+                    className={cn(
+                      'border-2 border-ink px-2 py-1',
+                      variation.cursor === index + 1
+                        ? 'bg-primary-base font-bold text-text-white-0'
+                        : 'bg-bg-white-0',
+                    )}
+                    onClick={() =>
+                      setVariation((current) =>
+                        current ? { ...current, cursor: index + 1, playing: false } : current,
+                      )
+                    }
+                  >
+                    {item.san}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          ) : null}
+          <LessonDesk
+            brief={brief}
+            lesson={lesson}
+            briefLoading={!briefReady}
+            lessonLoading={lessonLoading}
+            offline={lessonOffline}
+            error={lessonError}
+            variationActive={Boolean(variation)}
+            onEnterLine={enterLine}
+            onLeaveVariation={() => setVariation(null)}
+            onAsk={(question) => {
+              setPane('panel');
+              askAboutPosition(question);
+            }}
+            onSelectPly={(next) => {
+              setPane('board');
+              go(next);
+            }}
+            onTeach={() => {
+              setPane('panel');
+              teachPly();
+            }}
+            asking={asking}
+          />
+        </div>
+      }
+    />
   );
 }
 
@@ -471,6 +497,13 @@ function MoveList({
   onSelect: (ply: number) => void;
   byPly: Map<number, AnalyzedPly> | null;
 }) {
+  const listRef = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    listRef.current
+      ?.querySelector('[data-current-ply="true"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [current]);
+
   const rows: { number: number; white?: ReplayPly; black?: ReplayPly }[] = [];
   for (const ply of plies) {
     const number = Math.ceil(ply.ply / 2);
@@ -487,7 +520,10 @@ function MoveList({
   }
 
   return (
-    <ol className="max-h-[560px] overflow-auto border-2 border-ink bg-bg-white-0 font-mono text-sm shadow-regular-xs">
+    <ol
+      ref={listRef}
+      className="max-h-64 overflow-auto border-2 border-ink bg-bg-white-0 font-mono text-sm shadow-regular-xs"
+    >
       {rows.map((row) => (
         <li
           key={row.number}
@@ -520,6 +556,7 @@ function MoveCell({
     <button
       type="button"
       onClick={() => onSelect(ply.ply)}
+      data-current-ply={active ? 'true' : undefined}
       className={cn(
         'px-2 py-1.5 text-left',
         active ? 'bg-primary-base font-bold text-text-white-0' : 'hover:bg-bg-weak-50',

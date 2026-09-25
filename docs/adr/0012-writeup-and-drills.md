@@ -3,8 +3,9 @@
 The engine pass (ADR 0008) stays the source of evals, citations, and overlooked tags.
 The **writeup** is the human coach document (ADR 0004 / sample-bare-analysis): one voice, every
 claim tied to this player's games, tone from slow-run teaching beats and the course skill band
-(ADR 0011). The **roadmap** and **drills** (ADR 0006) are generated from that writeup — never
-from a generic puzzle bucket.
+(ADR 0011). `now[]` is one roadmap action per named leak (mistakes / tactics / structures, and
+clock when it is a leak) — not a cap of three. The **roadmap** and **drills** (ADR 0006) are
+generated from that writeup — never from a generic puzzle bucket.
 
 We generate the writeup with the same Mastra + Claude Opus 4.6 coach as lessons, reading the
 bare snapshot JSON. Missing key or a failed model call is `SERVICE_UNAVAILABLE` — we do not

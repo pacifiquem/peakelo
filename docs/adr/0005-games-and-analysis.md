@@ -21,7 +21,9 @@ column, no Brilliant glyphs, no mixed Chess.com+Lichess list.
 ## `/games/[id]`
 
 Teach this game in human language. Board is the diagram, not the product. Lowest visual loudness
-in `docs/design/ui.md`.
+in `docs/design/ui.md`. The board and the lesson stay on screen together: a two-pane study desk
+(board + scoresheet sticky; lesson scrolling beside it). On small screens, Board / Lesson tabs
+replace stacking the lesson under a 560px board. Breadcrumb is Games › this scoresheet.
 
 ### On the desk now
 

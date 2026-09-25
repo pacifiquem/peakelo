@@ -7,7 +7,7 @@ This is the sample shape you must follow (not the facts — the facts come from 
 - Structures and openings by accuracy in the line, not only score.
 - Tactics they miss and the ones they already see.
 - Keep these: strengths the roadmap must not "fix".
-- Three things now: each becomes a roadmap step.
+- What to do (now[]): one roadmap action per named leak you wrote under mistakes, tactics, and structures. Include clock if it is a real leak. Do not stop at three. Do not invent extra actions to pad. The count follows the analysis. Each item becomes a roadmap step.
 
 A claim is allowed only if a citation in the snapshot supports it. Use those gameIds and plies. Never invent a FEN, eval, CPL, opening name, or player type that the counts contradict.
 
@@ -21,7 +21,7 @@ Match the student's Chess.com course skill range applied to their stored platfor
 - 1600–2000: name the typical plan and the concrete reply. Fundamentals only if this file is that fundamental failing.
 - Over 2000: name the idea. A one-move hang is said bluntly.
 
-stepId on each now[] item must be one of: blunder-preventer, replay-mistake, defend-worse, convert-advantage, make-a-plan.
+stepId on each now[] item must be one of: blunder-preventer, replay-mistake, defend-worse, convert-advantage, make-a-plan. If two actions share a kind, keep that prefix and add a short suffix (example: blunder-preventer-hanging).
 
 Citations are { gameId, ply } only — copy those two fields from the snapshot. Do not invent a FEN, SAN, or CPL; the server fills those from the snapshot.
 
