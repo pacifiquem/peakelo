@@ -7,7 +7,6 @@ import { AppShell } from '@/components/app-shell';
 import { DashboardGate } from '@/components/dashboard/dashboard-gate';
 import { DashboardWell } from '@/components/dashboard/dashboard-well';
 import { PageIntro } from '@/components/dashboard/page-intro';
-import { PlannedList } from '@/components/dashboard/planned-list';
 import * as Button from '@/components/ui/button';
 
 export default function AccountPage() {
@@ -18,12 +17,11 @@ export default function AccountPage() {
         return (
           <AppShell user={user}>
             <DashboardWell>
-              <PageIntro folio="Account" title="What the coach uses.">
-                The inputs, not a second profile. Change these when we grow an edit route. Dual
-                chess platforms stay open until Pro ships.
+              <PageIntro folio="Account" title="Your account.">
+                The name, sites, and clocks I use when I coach you.
               </PageIntro>
 
-              <section className="divide-y-2 divide-ink border-2 border-ink bg-bg-white-0 shadow-regular-xs [&>*]:odd:bg-bg-white-0 [&>*]:even:bg-bg-weak-50">
+              <section className="divide-y-2 divide-ink border-2 border-t-4 border-ink border-t-cyan bg-bg-white-0 shadow-regular-xs [&>*]:odd:bg-bg-white-0 [&>*]:even:bg-bg-weak-50">
                 <Row label="Name" value={user.displayName} />
                 <Row label="Email" value={user.email ?? 'Not on this sign-in'} />
                 <Row
@@ -71,26 +69,8 @@ export default function AccountPage() {
               </section>
 
               <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
-                <Link href="/billing">Plans and checkout</Link>
+                <Link href="/billing">See plans</Link>
               </Button.Root>
-
-              <PlannedList
-                adr="docs/adr/0007-account-and-billing.md"
-                items={[
-                  {
-                    title: 'Edit focus and note',
-                    detail: 'Same questions as onboarding, saved back to the player.',
-                  },
-                  {
-                    title: 'Sync time controls',
-                    detail: 'Which clocks the 30-minute job keeps pulling.',
-                  },
-                  {
-                    title: 'Pro cap',
-                    detail: 'When payments exist, a second chess platform becomes Training. Not a fake paywall now.',
-                  },
-                ]}
-              />
             </DashboardWell>
           </AppShell>
         );

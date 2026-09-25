@@ -60,10 +60,10 @@ export function useMe() {
     const next = user.enginePass.status;
     const wasActive = previous !== undefined && isEnginePassActive(previous);
     if (wasActive && next === 'ready') {
-      showInfo('Your profile snapshot is ready.');
+      showInfo('Your profile is ready.');
     }
     if (wasActive && next === 'failed') {
-      showError(user.enginePass.error ?? 'The engine pass failed.');
+      showError(user.enginePass.error ?? 'I couldn’t finish reading your games.');
     }
     previousPassStatus.current = next;
   }, [user]);

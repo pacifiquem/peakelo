@@ -49,7 +49,7 @@ export async function askLesson(
 export function lessonErrorMessage(error: unknown): string {
   if (error instanceof ApiClientError) return error.message;
   if (error instanceof Error) return error.message;
-  return 'The lesson could not be written.';
+  return 'I couldn’t write that lesson.';
 }
 
 export function isLessonOffline(error: unknown): boolean {

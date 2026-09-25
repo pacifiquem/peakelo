@@ -65,20 +65,19 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
   return (
     <AppShell user={user}>
       <DashboardWell>
-        <PageIntro folio="Home" title="On the desk.">
-          One next action. The writeup, the roadmap, and the drills wait until we have actually
-          read your games.
+        <PageIntro folio="Home" title="What to do today.">
+          One thing to do next. I won&apos;t invent a plan until I&apos;ve actually read your games.
         </PageIntro>
 
-        <EmptyPlate folio="Plate 00" title={plate.title}>
+        <EmptyPlate folio="Today" title={plate.title}>
           {plate.body}
         </EmptyPlate>
 
         {waiting.length > 0 ? (
-          <section className="border-2 border-ink bg-bg-white-0 shadow-regular-xs">
+          <section className="border-2 border-t-4 border-ink border-t-cyan bg-bg-white-0 shadow-regular-xs">
             <header className="border-b-2 border-ink bg-bg-weak-50 px-4 py-2">
               <p className="font-mono text-sm font-medium text-text-strong-950">
-                {desk?.writeup.document ? 'Waiting on you' : 'Waiting on a writeup'}
+                {desk?.writeup.document ? 'Games to open' : 'Waiting on your writeup'}
               </p>
             </header>
             <ul className="divide-y-2 divide-ink">
@@ -92,7 +91,7 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
                       {game.whiteName} vs {game.blackName}
                     </span>
                     <span className="font-mono text-sm text-text-strong-950">
-                      you as {game.userColor} · {game.result} · {game.timeControl}
+                      you played {game.userColor} · {game.result} · {game.timeControl}
                     </span>
                   </Link>
                 </li>
@@ -102,33 +101,33 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
         ) : null}
 
         {desk?.writeup.document ? (
-          <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
-            <p className="font-mono text-sm text-text-sub-600">Headline</p>
+          <section className="border-2 border-t-4 border-ink border-t-cyan bg-bg-white-0 p-5 shadow-regular-xs">
+            <p className="font-mono text-sm text-text-sub-600">Who you are</p>
             <h2 className="mt-2 font-display text-2xl font-extrabold">{desk.writeup.document.headline}</h2>
             <p className="mt-2 font-mono text-sm">
-              Goal: {desk.progress.goalLabel} · {desk.progress.stepsDone}/{desk.progress.stepsTotal}{' '}
-              steps · {desk.progress.drillsDone}/{desk.progress.drillsTotal} positions cleared ·{' '}
-              {desk.progress.drillsDue} due
+              Working toward {desk.progress.goalLabel}. {desk.progress.stepsDone} of{' '}
+              {desk.progress.stepsTotal} steps. {desk.progress.drillsDone} of{' '}
+              {desk.progress.drillsTotal} positions cleared. {desk.progress.drillsDue} still to play.
             </p>
           </section>
         ) : null}
 
         {desk?.progress.nextDrill ? (
-          <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+          <section className="border-2 border-t-4 border-ink border-t-magenta bg-bg-white-0 p-5 shadow-regular-sm">
             <p className="font-mono text-sm text-text-sub-600">Today’s work</p>
             <h2 className="mt-2 font-display text-2xl font-extrabold">
               {DRILL_KIND_LABEL[desk.progress.nextDrill.kind]}
             </h2>
             <p className="mt-2 max-w-[62ch] text-base leading-7">{desk.progress.nextDrill.stem}</p>
             <Button.Root asChild className="mt-4 w-fit">
-              <Link href={`/drills/${desk.progress.nextDrill.id}`}>Open the drill</Link>
+              <Link href={`/drills/${desk.progress.nextDrill.id}`}>Play this one</Link>
             </Button.Root>
           </section>
         ) : null}
 
         <div className="flex flex-wrap gap-3">
           <Button.Root asChild className="w-fit">
-            <Link href="/games">Open the scoresheet</Link>
+            <Link href="/games">See your games</Link>
           </Button.Root>
           <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
             <Link href="/profile">Profile</Link>
@@ -152,17 +151,16 @@ function plate00(
   if (isEnginePassActive(pass.status)) {
     const total = passGameTotal(pass);
     return {
-      title: 'The engine is reading your games.',
+      title: 'I’m reading your games.',
       body:
         total > 0 ? (
           <p>
-            Reading every move of the last {total} games. This page stays honest until that pass
-            finishes.
+            I’m going through every move of the last {total} games. Today’s work shows up here when
+            that’s done.
           </p>
         ) : (
           <p>
-            Every imported move is going through the engine. This page stays honest until that pass
-            finishes.
+            I’m going through every imported move. Today’s work shows up here when that’s done.
           </p>
         ),
     };
@@ -171,8 +169,8 @@ function plate00(
   if (pass.status === 'ready') {
     if (desk?.writeup.status === 'queued' || desk?.writeup.status === 'running') {
       return {
-        title: 'Writing who you are.',
-        body: <p>The coach is reading the snapshot. Today’s work lands when the writeup is ready.</p>,
+        title: 'Writing you up.',
+        body: <p>I’m reading what the engine found. Today’s work lands when the writeup is ready.</p>,
       };
     }
     if (desk?.writeup.document) {
@@ -181,22 +179,22 @@ function plate00(
         body: (
           <p>
             {desk.progress.nextDrill
-              ? 'One drill on the desk. The syllabus is the rest of the week.'
-              : 'The writeup is ready. Open the syllabus when you want the next leak.'}
+              ? 'One position is waiting. The roadmap is the rest of the week.'
+              : 'The writeup is ready. Open the roadmap when you want the next leak.'}
           </p>
         ),
       };
     }
     return {
-      title: waiting > 0 ? 'Your games are in.' : 'The pass is ready.',
+      title: waiting > 0 ? 'Your games are in.' : 'I’ve read the games.',
       body: (
         <p>
-          The engine has read your games.{' '}
+          The engine has been through your games.{' '}
           <Link
             href="/profile"
-            className="font-display font-bold underline decoration-2 underline-offset-4"
+            className="font-display font-bold text-magenta underline decoration-2 underline-offset-4"
           >
-            Write who you are
+            Write my profile
           </Link>
           .
         </p>
@@ -206,8 +204,8 @@ function plate00(
 
   if (pass.status === 'failed') {
     return {
-      title: 'The engine pass failed.',
-      body: <p>{pass.error ?? 'The snapshot did not finish. Open profile for the last counts.'}</p>,
+      title: 'I couldn’t finish reading your games.',
+      body: <p>{pass.error ?? 'The read stopped early. Open your profile for where it got to.'}</p>,
     };
   }
 
@@ -216,7 +214,7 @@ function plate00(
       title: 'Your games are in.',
       body: (
         <p>
-          We have not written who you are yet — that takes a full engine pass, not a glance at the
+          I haven’t written you up yet. That takes a full read of the games, not a glance at the
           scoresheet.
         </p>
       ),
@@ -224,11 +222,11 @@ function plate00(
   }
 
   return {
-    title: 'Nothing to coach yet.',
+    title: 'Nothing on the desk yet.',
     body: (
       <p>
-        Play a rated blitz, rapid, or bullet game on the account you linked. New ones land here
-        about every 30 minutes.
+        Play a rated blitz, rapid, or bullet game on the account you linked. I’ll pick it up within
+        about half an hour.
       </p>
     ),
   };

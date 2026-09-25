@@ -147,12 +147,15 @@ export function PublicReviewDesk({ review }: { review: PublicReview }) {
 
       <div className="flex flex-col gap-4">
         {review.review ? (
-          <article className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
-            <p className="font-mono text-sm text-text-sub-600">Coach</p>
+          <article className="border-2 border-t-4 border-ink border-t-cyan bg-bg-white-0 p-5 shadow-regular-xs">
+            <p className="flex items-center gap-2 font-mono text-sm text-text-sub-600">
+              <span className="size-2 bg-cyan" aria-hidden />
+              Coach
+            </p>
             <h2 className="mt-2 font-display text-2xl font-extrabold">{review.review.headline}</h2>
             <p className="mt-3 max-w-[62ch] text-base leading-7">{review.review.story}</p>
             <p className="mt-3 text-sm leading-6">
-              <span className="font-display font-bold">Decided by. </span>
+              <span className="font-display font-bold">How it was decided. </span>
               {review.review.decidedBy}
             </p>
             {review.review.opening ? (
@@ -175,11 +178,11 @@ export function PublicReviewDesk({ review }: { review: PublicReview }) {
               ))}
             </ul>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="border-2 border-ink p-3">
+              <div className="border-2 border-t-4 border-ink border-t-gold bg-bg-white-0 p-3">
                 <dt className="font-mono text-sm">White</dt>
                 <dd className="mt-1 text-sm leading-6">{review.review.whiteHabit}</dd>
               </div>
-              <div className="border-2 border-ink p-3">
+              <div className="border-2 border-t-4 border-ink border-t-cyan bg-bg-white-0 p-3">
                 <dt className="font-mono text-sm">Black</dt>
                 <dd className="mt-1 text-sm leading-6">{review.review.blackHabit}</dd>
               </div>
@@ -189,12 +192,15 @@ export function PublicReviewDesk({ review }: { review: PublicReview }) {
           <div className="flex flex-col gap-3">
             <p className="max-w-[62ch] text-sm leading-6 text-text-sub-600">
               {review.status === 'queued' || review.status === 'running'
-                ? 'The scoresheet is live. The coach writes after the engine finishes every move.'
-                : (review.error ?? 'The scoresheet is from the engine. The coach writeup did not land.')}
+                ? 'You can step through the game. I’ll write it up after every move is read.'
+                : (review.error ?? 'The board is from the engine. The writeup didn’t land.')}
             </p>
             {ready && swings.length > 0 ? (
               <div className="flex flex-col gap-2">
-                <p className="font-mono text-sm text-text-sub-600">Engine swings</p>
+                <p className="flex items-center gap-2 font-mono text-sm text-text-sub-600">
+                  <span className="size-2 bg-gold" aria-hidden />
+                  The moves that swung it
+                </p>
                 <ul className="flex flex-col gap-2">
                   {swings.map((item) => {
                     const note = annotatePly(item);

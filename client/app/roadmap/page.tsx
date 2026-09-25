@@ -46,17 +46,16 @@ function RoadmapDesk() {
   return (
     <DashboardWell>
       <Breadcrumb items={[{ label: 'Roadmap' }]} />
-      <PageIntro folio="Roadmap" title="The syllabus.">
-        A workbook table of contents from your profile toward the next band — not a generic
-        tactics book and not a cartoon trail.
+      <PageIntro folio="Roadmap" title="What to work on.">
+        Steps from your profile toward the next level. Not a generic tactics book.
       </PageIntro>
 
-      {desk === undefined ? <p className="text-text-sub-600">Loading the syllabus…</p> : null}
+      {desk === undefined ? <p className="text-text-sub-600">Loading your roadmap…</p> : null}
 
       {desk && !roadmap ? (
         <EmptyPlate
-          folio="Plate 00"
-          title="No syllabus yet."
+          folio="Roadmap"
+          title="No roadmap yet."
           action={
             <Button.Root
               type="button"
@@ -70,11 +69,12 @@ function RoadmapDesk() {
                   .finally(() => setBusy(false));
               }}
             >
-              Write the profile first
+              Write my profile
             </Button.Root>
           }
         >
-          A roadmap without a profile is a generic tactics book. Wait for the writeup.
+          I need your writeup before I can tell you what to practice. Otherwise this is just a
+          tactics book.
         </EmptyPlate>
       ) : null}
 
@@ -86,8 +86,8 @@ function RoadmapDesk() {
 function Syllabus({ roadmap, desk }: { roadmap: PublicRoadmap; desk: TrainingDesk }) {
   return (
     <div className="flex flex-col gap-6">
-      <section className="border-2 border-ink bg-gold/20 p-5 shadow-regular-xs">
-        <p className="font-mono text-sm">Gold rule · {desk.progress.goalLabel}</p>
+      <section className="border-2 border-t-4 border-ink border-t-gold bg-gold/25 p-5 shadow-regular-sm">
+        <p className="font-mono text-sm">The rule for now · {desk.progress.goalLabel}</p>
         <h2 className="mt-2 font-display text-2xl font-extrabold">{roadmap.goldRule}</h2>
         <div className="mt-4 flex flex-col gap-3">
           <ProgressMeter
@@ -101,18 +101,18 @@ function Syllabus({ roadmap, desk }: { roadmap: PublicRoadmap; desk: TrainingDes
             label="positions cleared"
           />
           <p className="font-mono text-sm">
-            {desk.progress.drillsDue} due · {desk.progress.drillsDoneThisWeek} hits this week
+            {desk.progress.drillsDue} still to play · {desk.progress.drillsDoneThisWeek} cleared this week
           </p>
         </div>
         {desk.progress.leaksStillPresent.length > 0 ? (
           <p className="mt-3 text-sm leading-6">
-            Still in recent games:{' '}
+            Still showing up:{' '}
             {desk.progress.leaksStillPresent
               .map((item) => `${item.label} (${item.recentCount})`)
               .join(', ')}
           </p>
         ) : (
-          <p className="mt-3 text-sm leading-6">No named leak in the last fifteen games.</p>
+          <p className="mt-3 text-sm leading-6">Nothing I named has shown up in the last fifteen games.</p>
         )}
       </section>
 
@@ -121,14 +121,21 @@ function Syllabus({ roadmap, desk }: { roadmap: PublicRoadmap; desk: TrainingDes
           <li
             key={step.id}
             id={`s${index + 1}`}
-            className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs"
+            className={`border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs ${
+              step.status === 'current'
+                ? 'border-t-4 border-t-gold'
+                : step.status === 'done'
+                  ? 'border-t-4 border-t-cyan'
+                  : 'border-t-4 border-t-magenta'
+            }`}
           >
             <p className="font-mono text-sm">
-              s{index + 1} · {DRILL_KIND_LABEL[step.kind]} · {step.status}
+              Step {index + 1} · {DRILL_KIND_LABEL[step.kind]} ·{' '}
+              {step.status === 'current' ? 'now' : step.status === 'upcoming' ? 'later' : 'done'}
             </p>
             <h3 className="mt-2 font-display text-xl font-extrabold">{step.title}</h3>
             <p className="mt-2 max-w-[62ch] text-base leading-7">{step.why}</p>
-            <p className="mt-2 text-sm leading-6 text-text-sub-600">Done when: {step.doneWhen}</p>
+            <p className="mt-2 text-sm leading-6 text-text-sub-600">{step.doneWhen}</p>
             <div className="mt-3">
               <ProgressMeter
                 done={step.drillsDone}

@@ -15,7 +15,7 @@ import { AppShell } from '@/components/app-shell';
 import { DashboardGate } from '@/components/dashboard/dashboard-gate';
 import { DashboardWell } from '@/components/dashboard/dashboard-well';
 import { PageIntro } from '@/components/dashboard/page-intro';
-import { PlannedList } from '@/components/dashboard/planned-list';
+
 import * as Button from '@/components/ui/button';
 import { showError } from '@/components/ui/toast';
 import { api } from '@/lib/api';
@@ -112,9 +112,9 @@ function GamesDesk({
   return (
     <AppShell user={user} viewingSource={viewingSource} onViewingSource={onSource}>
       <DashboardWell>
-        <PageIntro folio="Games" title="The scoresheet.">
-          {viewingSource === 'chesscom' ? 'Chess.com' : 'Lichess'} games. New ones land about every
-          30 minutes. One platform at a time.
+        <PageIntro folio="Games" title="Your games.">
+          {viewingSource === 'chesscom' ? 'Chess.com' : 'Lichess'} games. New ones show up about
+          every half hour. One site at a time.
         </PageIntro>
 
         <div className="flex flex-wrap gap-2" role="group" aria-label="Time control">
@@ -134,12 +134,12 @@ function GamesDesk({
 
         {games && games.data.length === 0 ? (
           <p className="text-sm text-text-strong-950">
-            No games matched those time controls yet. Play one and wait for the next sync.
+            No games in those time controls yet. Play one and I’ll pick it up on the next sync.
           </p>
         ) : null}
 
         {games && games.data.length > 0 ? (
-          <div className="overflow-x-auto border-2 border-ink bg-bg-white-0 shadow-regular-xs">
+          <div className="overflow-x-auto border-2 border-t-4 border-ink border-t-cyan bg-bg-white-0 shadow-regular-xs">
             <table className="w-full min-w-[44rem] table-fixed text-left">
               <colgroup>
                 <col className="w-[14%]" />
@@ -210,20 +210,6 @@ function GamesDesk({
             </Button.Root>
           </div>
         ) : null}
-
-        <PlannedList
-          adr="docs/adr/0005-games-and-analysis.md"
-          items={[
-            {
-              title: 'Writeup chip',
-              detail: 'Imported / Writeup ready / Writeup locked / Queued — only if true.',
-            },
-            {
-              title: 'Theme index',
-              detail: 'Filter by hanging pieces, danger-square forks, and other named patterns.',
-            },
-          ]}
-        />
       </DashboardWell>
     </AppShell>
   );

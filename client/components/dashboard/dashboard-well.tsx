@@ -14,14 +14,22 @@ export function DashboardWell({
   return (
     <main
       className={cn(
-        'mx-auto flex w-full flex-col bg-paper',
-        size === 'study' ? 'max-w-[88rem] gap-4 px-3 py-4 lg:px-6' : 'gap-8 px-4 py-8 lg:px-8',
+        'mx-auto w-full',
+        size === 'study' ? 'max-w-[88rem] px-3 py-4 lg:px-6' : 'px-4 py-8 lg:px-8',
         size === 'default' && 'max-w-5xl',
         size === 'wide' && 'max-w-7xl',
         className,
       )}
     >
-      {children}
+      <div className="peakelo-scan" aria-hidden />
+      <div
+        className={cn(
+          'mt-4 flex flex-col bg-paper',
+          size === 'study' ? 'gap-4' : 'gap-8 border-2 border-ink p-4 shadow-regular-sm md:p-8',
+        )}
+      >
+        {children}
+      </div>
     </main>
   );
 }

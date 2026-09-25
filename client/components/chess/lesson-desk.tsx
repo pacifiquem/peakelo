@@ -53,16 +53,16 @@ export function LessonDesk({
     return (
       <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
         <p className="font-mono text-sm text-text-sub-600">Lesson</p>
-        <h2 className="mt-2 font-display text-xl font-extrabold">The coach is offline.</h2>
+        <h2 className="mt-2 font-display text-xl font-extrabold">I can’t write the lesson right now.</h2>
         <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-strong-950">
-          The scoresheet and engine marks still work. Try the lesson again in a bit.
+          The board and the move marks still work. Try the lesson again in a bit.
         </p>
       </section>
     );
   }
 
   return (
-    <section className="flex flex-col gap-5 border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+    <section className="flex flex-col gap-5 border-2 border-t-4 border-ink border-t-cyan bg-bg-white-0 p-5 shadow-regular-xs">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <p className="font-mono text-sm text-text-sub-600">
           {brief?.playerRating
@@ -100,11 +100,10 @@ export function LessonDesk({
       ) : (
         <div>
           <h3 className="font-display text-lg font-extrabold text-text-strong-950">
-            Teach this ply when you want it.
+            Teach this move when you want it.
           </h3>
           <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-strong-950">
-            The scoresheet and engine marks are already on the board. The coach writes this
-            position only when you ask.
+            The board and the move marks are already here. I’ll write this position when you ask.
           </p>
           {error ? (
             <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-strong-950">{error}</p>

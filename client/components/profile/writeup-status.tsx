@@ -12,11 +12,11 @@ export function WriteupStatus({
 }) {
   if (writeup.status === 'queued' || writeup.status === 'running') {
     return (
-      <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+      <section className="border-2 border-t-4 border-ink border-t-cyan bg-bg-white-0 p-5 shadow-regular-xs">
         <p className="font-mono text-sm text-text-sub-600">Writeup</p>
-        <h2 className="mt-2 font-display text-xl font-extrabold">Writing who you are.</h2>
+        <h2 className="mt-2 font-display text-xl font-extrabold">Writing you up.</h2>
         <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-strong-950">
-          The coach is reading your games. This stays honest until the document is ready.
+          I’m reading your games. The writeup shows up here when it’s ready.
         </p>
       </section>
     );
@@ -24,11 +24,11 @@ export function WriteupStatus({
 
   if (writeup.status === 'failed') {
     return (
-      <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+      <section className="border-2 border-t-4 border-ink border-t-gold bg-bg-white-0 p-5 shadow-regular-xs">
         <p className="font-mono text-sm text-text-sub-600">Writeup</p>
-        <h2 className="mt-2 font-display text-xl font-extrabold">The writeup failed.</h2>
+        <h2 className="mt-2 font-display text-xl font-extrabold">The writeup didn’t finish.</h2>
         <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-strong-950">
-          {writeup.error ?? 'The coach could not finish the document.'}
+          {coachFailure(writeup.error)}
         </p>
         <Button.Root type="button" className="mt-4 w-fit" disabled={busy} onClick={onGenerate}>
           Try again
@@ -38,15 +38,22 @@ export function WriteupStatus({
   }
 
   return (
-    <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+    <section className="border-2 border-t-4 border-ink border-t-magenta bg-bg-white-0 p-5 shadow-regular-xs">
       <p className="font-mono text-sm text-text-sub-600">Writeup</p>
-      <h2 className="mt-2 font-display text-xl font-extrabold">The writeup is not written yet.</h2>
+      <h2 className="mt-2 font-display text-xl font-extrabold">I haven’t written you up yet.</h2>
       <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-strong-950">
-        The coach document is the voice — every claim tied to your games, in human language.
+        This is the letter about your games. Every claim is tied to something you played.
       </p>
       <Button.Root type="button" className="mt-4 w-fit" disabled={busy} onClick={onGenerate}>
         Write my profile
       </Button.Root>
     </section>
   );
+}
+
+function coachFailure(error: string | null) {
+  if (!error || /snapshot|costume|document was removed/i.test(error)) {
+    return 'The last writeup was cleared. I can write it again from your games.';
+  }
+  return error;
 }

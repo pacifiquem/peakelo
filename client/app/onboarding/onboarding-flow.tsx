@@ -247,7 +247,7 @@ function ConnectStep({
   return (
     <div>
       <StepIntro title="Connect a chess account.">
-        Link Lichess, Chess.com, or both so we can import the games you play.
+        Link Lichess, Chess.com, or both so I can import the games you play.
       </StepIntro>
       <ChoiceSheet>
         <ChoiceLink href={oauthStartUrl('lichess', 'link')}>

@@ -68,7 +68,7 @@ export async function askDrill(id: string, body: DrillAskRequest): Promise<Lesso
 export function trainingErrorMessage(error: unknown): string {
   if (error instanceof ApiClientError) return error.message;
   if (error instanceof Error) return error.message;
-  return 'The coach could not finish that.';
+  return 'I couldn’t finish that.';
 }
 
 export function isCoachOffline(error: unknown): boolean {

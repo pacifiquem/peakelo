@@ -16,6 +16,7 @@ export function PageIntro({
         {folio}
       </p>
       <h1 className="font-display text-4xl font-extrabold tracking-normal">{title}</h1>
+      <span className="h-1 w-16 bg-cyan" aria-hidden />
       <p className="max-w-[62ch] text-lg leading-7 text-text-strong-950">{children}</p>
     </header>
   );

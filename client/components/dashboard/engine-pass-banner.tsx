@@ -24,16 +24,16 @@ export function EnginePassBanner({ pass }: { pass: EnginePass }) {
       // private mode: toast this mount only
     }
     if (shouldNotify) {
-      showInfo('We are building your profile in the background.');
+      showInfo('I’m reading your games in the background.');
     }
   }, []);
 
   return (
-    <div className="bg-paper px-4 py-3 lg:px-6">
+    <div className="px-4 py-3 lg:px-6">
       <section
         role="status"
         aria-live="polite"
-        className="border-2 border-ink bg-bg-white-0 px-4 py-3"
+        className="border-2 border-l-4 border-ink border-l-cyan bg-bg-white-0 px-4 py-3 shadow-regular-xs"
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-3">
@@ -42,10 +42,9 @@ export function EnginePassBanner({ pass }: { pass: EnginePass }) {
               aria-hidden
             />
             <div className="min-w-0">
-              <h2 className="font-display text-base font-extrabold">Building your profile</h2>
+              <h2 className="font-display text-base font-extrabold">Reading your games</h2>
               <p className="mt-1 max-w-[62ch] text-sm leading-6 text-text-strong-950">
-                Every imported move goes through the engine. This stays on the desk until it
-                finishes.
+                Every imported move goes through the engine. Your profile lands when that’s done.
               </p>
               <EnginePassCounts pass={pass} className="mt-2" />
             </div>

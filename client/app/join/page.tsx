@@ -39,10 +39,18 @@ function JoinInner() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-6 px-6 py-16">
-      <h1 className="font-display text-5xl font-extrabold tracking-tight">Create your account</h1>
-      <p className="max-w-md text-lg text-text-sub-600">
-        Sign up to Peakelo with the account you already use.
+      <div className="peakelo-scan w-full" aria-hidden />
+      <div className="flex flex-col gap-4 border-2 border-t-4 border-ink border-t-gold bg-paper p-5 shadow-regular-sm">
+      <p className="flex items-center gap-2 font-mono text-sm text-text-sub-600">
+        <span className="size-2 bg-magenta" aria-hidden />
+        Peakelo
       </p>
+      <h1 className="font-display text-5xl font-extrabold tracking-tight">Join Peakelo</h1>
+      <span className="h-1 w-16 bg-gold" aria-hidden />
+      <p className="max-w-md text-lg text-text-sub-600">
+        Use the account you already play with.
+      </p>
+      </div>
 
       <div className="flex flex-col gap-3">
         <Button.Root asChild variant="neutral" mode="stroke" className="w-full justify-center">

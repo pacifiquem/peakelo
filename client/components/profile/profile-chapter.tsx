@@ -48,11 +48,11 @@ function ChapterBody({ document, chapterId }: { document: Writeup; chapterId: Pr
         <header className="flex flex-col gap-2">
           <h1 className="font-display text-3xl font-extrabold">Recurring mistakes</h1>
           <p className="max-w-[62ch] text-sm leading-6 text-text-sub-600">
-            Named leaks from your own games — not a dump of every opening you play.
+            The mistakes that keep showing up, with the games they came from.
           </p>
         </header>
         {document.mistakes.length === 0 ? (
-          <p className="text-sm text-text-sub-600">No named leaks in this writeup.</p>
+          <p className="text-sm text-text-sub-600">I didn’t name a repeating mistake in this writeup.</p>
         ) : (
           document.mistakes.map((block) => (
             <PatternCard key={block.name} name={block.name} story={block.story} citations={block.citations} />
@@ -68,11 +68,11 @@ function ChapterBody({ document, chapterId }: { document: Writeup; chapterId: Pr
         <header className="flex flex-col gap-2">
           <h1 className="font-display text-3xl font-extrabold">Structures and lines</h1>
           <p className="max-w-[62ch] text-sm leading-6 text-text-sub-600">
-            Only the setups where the coach found a leak — not every line in the book.
+            Only the setups where your games actually leak.
           </p>
         </header>
         {document.structures.length === 0 ? (
-          <p className="text-sm text-text-sub-600">No structure notes in this writeup.</p>
+          <p className="text-sm text-text-sub-600">No structure stood out as a leak.</p>
         ) : (
           document.structures.map((block) => (
             <PatternCard key={block.name} name={block.name} story={block.story} citations={block.citations} />
@@ -88,11 +88,11 @@ function ChapterBody({ document, chapterId }: { document: Writeup; chapterId: Pr
         <header className="flex flex-col gap-2">
           <h1 className="font-display text-3xl font-extrabold">Tactics you miss</h1>
           <p className="max-w-[62ch] text-sm leading-6 text-text-sub-600">
-            Grouped and named from your games — not a depth table.
+            The tactics you miss, named from your own games.
           </p>
         </header>
         {document.tactics.length === 0 ? (
-          <p className="text-sm text-text-sub-600">No tactic notes in this writeup.</p>
+          <p className="text-sm text-text-sub-600">No tactic stood out as a miss.</p>
         ) : (
           document.tactics.map((block) => (
             <PatternCard key={block.name} name={block.name} story={block.story} citations={block.citations} />
@@ -108,11 +108,11 @@ function ChapterBody({ document, chapterId }: { document: Writeup; chapterId: Pr
         <header className="flex flex-col gap-2">
           <h1 className="font-display text-3xl font-extrabold">Keep these</h1>
           <p className="max-w-[62ch] text-sm leading-6 text-text-sub-600">
-            Strengths the syllabus must not “fix.”
+            Strengths to keep. The roadmap should not try to “fix” these.
           </p>
         </header>
         {document.keep.length === 0 ? (
-          <p className="text-sm text-text-sub-600">No strengths called out in this writeup.</p>
+          <p className="text-sm text-text-sub-600">I didn’t call out a strength to protect.</p>
         ) : (
           document.keep.map((block) => (
             <PatternCard key={block.name} name={block.name} story={block.story} citations={block.citations} />
@@ -129,7 +129,7 @@ function ChapterBody({ document, chapterId }: { document: Writeup; chapterId: Pr
         {document.now.map((item, index) => {
           const kind = stepIdToKind(item.stepId);
           return (
-            <li key={item.stepId} className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+            <li key={item.stepId} className="border-2 border-t-4 border-ink border-t-gold bg-bg-white-0 p-5 shadow-regular-xs">
               <p className="font-mono text-sm">{String(index + 1).padStart(2, '0')}</p>
               <h2 className="mt-1 font-display text-xl font-extrabold">{item.title}</h2>
               <p className="mt-2 max-w-[62ch] text-base leading-7">{item.why}</p>
@@ -140,14 +140,14 @@ function ChapterBody({ document, chapterId }: { document: Writeup; chapterId: Pr
                     href={drillKindHref(kind)}
                     className="font-display text-sm font-bold underline decoration-2 underline-offset-4"
                   >
-                    Practice this
+                    Practice it
                   </Link>
                 ) : null}
                 <Link
                   href="/roadmap"
-                  className="font-display text-sm font-bold underline decoration-2 underline-offset-4"
+                  className="font-display text-sm font-bold text-magenta underline decoration-2 underline-offset-4"
                 >
-                  Open the syllabus
+                  See it on the roadmap
                 </Link>
               </div>
             </li>

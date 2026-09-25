@@ -53,16 +53,16 @@ export function KindIndex() {
   if (rows.length === 0) {
     return (
       <EmptyPlate
-        folio="Plate 00"
-        title="No drill until the roadmap names a leak."
+        folio="Drills"
+        title="No drills yet."
         action={
           <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
-            <Link href="/roadmap">Open the syllabus</Link>
+            <Link href="/roadmap">Open the roadmap</Link>
           </Button.Root>
         }
       >
-        We will not serve random puzzles and call them yours. When a step exists, it lands here as
-        one set — not a pile of the same label.
+        I only give you positions from your own games, and only after I can name the leak. Open
+        the roadmap once the writeup is in.
       </EmptyPlate>
     );
   }
@@ -79,15 +79,15 @@ export function KindIndex() {
           <li key={row.kind}>
             <Link
               href={drillKindHref(row.kind)}
-              className="block border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs hover:bg-bg-weak-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              className="block border-2 border-t-4 border-ink border-t-magenta bg-bg-white-0 p-5 shadow-regular-xs hover:bg-bg-weak-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             >
               <ProgressMeter done={row.done} total={row.total} label="cleared" />
               <h2 className="mt-3 font-display text-2xl font-extrabold">{DRILL_KIND_LABEL[row.kind]}</h2>
               <p className="mt-2 max-w-[62ch] text-base leading-7 text-text-strong-950">{row.why}</p>
               <p className="mt-3 font-mono text-sm text-text-sub-600">
-                {row.due} due · {row.done} cleared
+                {row.due} still to play · {row.done} cleared
               </p>
-              <p className="mt-3 font-display text-sm font-bold underline decoration-2 underline-offset-4">
+              <p className="mt-3 font-display text-sm font-bold text-magenta underline decoration-2 underline-offset-4">
                 Open the set
               </p>
             </Link>

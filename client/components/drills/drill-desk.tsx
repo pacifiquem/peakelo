@@ -98,14 +98,14 @@ export function DrillDesk({
       }
       panel={
         <div className="flex flex-col gap-4">
-          <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+          <section className="border-2 border-t-4 border-ink border-t-magenta bg-bg-white-0 p-5 shadow-regular-xs">
             <p className="font-mono text-sm text-text-sub-600">{DRILL_KIND_LABEL[drill.kind]}</p>
             <h2 className="mt-2 font-display text-2xl font-extrabold">Your move.</h2>
             <p className="mt-3 max-w-[62ch] text-base leading-7 text-text-strong-950">{drill.stem}</p>
           </section>
 
           {insight ? (
-            <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
+            <section className="border-2 border-l-4 border-ink border-l-gold bg-bg-white-0 p-5 shadow-regular-xs">
               <h3 className="font-display text-xl font-extrabold">{insight.headline}</h3>
               <div className="mt-3 flex max-w-[62ch] flex-col gap-3 text-base leading-7">
                 {insight.segments.map((segment, index) => (
@@ -125,8 +125,8 @@ export function DrillDesk({
           ) : null}
 
           {answer ? (
-            <section className="border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs">
-              <p className="font-mono text-sm text-text-sub-600">Ask</p>
+            <section className="border-2 border-l-4 border-ink border-l-cyan bg-bg-white-0 p-5 shadow-regular-xs">
+              <p className="font-mono text-sm text-text-sub-600">You asked</p>
               <h3 className="mt-2 font-display text-xl font-extrabold">{answer.headline}</h3>
               <div className="mt-3 flex max-w-[62ch] flex-col gap-3 text-base leading-7">
                 {answer.segments.map((segment, index) => (

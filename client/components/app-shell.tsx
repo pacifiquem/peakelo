@@ -59,8 +59,9 @@ export function AppShell({
       <aside className="hidden border-ink bg-bg-white-0 md:flex md:w-14 md:shrink-0 md:flex-col md:border-r-2 lg:w-52">
         <Link
           href="/home"
-          className="hidden h-14 items-center border-b-2 border-ink px-4 font-display text-lg font-extrabold lg:flex"
+          className="hidden h-14 items-center gap-2 border-b-2 border-ink px-4 font-display text-lg font-extrabold lg:flex"
         >
+          <span className="size-2.5 shrink-0 bg-magenta" aria-hidden />
           Peakelo
         </Link>
         <nav aria-label="Studio" className="flex flex-1 flex-col p-2">
@@ -70,7 +71,8 @@ export function AppShell({
             ))}
           </div>
           <div className="mt-auto border-t-2 border-ink pt-2 pb-8">
-            <p className="hidden px-2 py-1 font-mono text-sm font-medium text-text-strong-950 lg:block">
+            <p className="hidden items-center gap-2 px-2 py-1 font-mono text-sm font-medium text-text-strong-950 lg:flex">
+              <span className="size-2 shrink-0 bg-gold" aria-hidden />
               Settings
             </p>
             <div className="flex flex-col gap-1" role="group" aria-label="Settings">
@@ -82,14 +84,15 @@ export function AppShell({
         </nav>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col bg-paper pb-24 md:pb-0">
-        <header className="sticky top-0 z-30 border-b-2 border-ink bg-bg-white-0">
+      <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
+        <header className="sticky top-0 z-30 border-b-2 border-ink bg-bg-white-0 shadow-regular-xs">
           <div className="flex min-h-14 flex-wrap items-center gap-3 px-4 py-2 lg:px-6">
-            <Link href="/home" className="font-display text-lg font-extrabold lg:hidden">
+            <Link href="/home" className="inline-flex items-center gap-2 font-display text-lg font-extrabold lg:hidden">
+              <span className="size-2.5 shrink-0 bg-magenta" aria-hidden />
               Peakelo
             </Link>
             <span className="hidden items-center gap-2 font-mono text-sm font-medium text-text-strong-950 sm:inline-flex">
-              <span className="size-2 shrink-0 bg-primary-base" aria-hidden />
+              <span className="size-2 shrink-0 bg-cyan" aria-hidden />
               {folioFor(pathname)}
             </span>
             <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -170,8 +173,8 @@ export function AppShell({
               href={item.href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex flex-col items-center gap-0.5 py-2 font-mono text-[10px]',
-                active ? 'bg-primary-alpha-10 text-primary-base' : 'text-text-sub-600',
+                'flex flex-col items-center gap-0.5 border-t-4 py-2 font-mono text-[10px]',
+                active ? 'border-magenta bg-primary-alpha-10 text-primary-base' : 'border-transparent text-text-sub-600',
               )}
             >
               <Icon className="size-5" aria-hidden />

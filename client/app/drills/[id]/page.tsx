@@ -91,14 +91,14 @@ function Session() {
       <DashboardWell size="study">
         <EmptyPlate
           folio="Drill"
-          title="This drill is not on this desk."
+          title="I can’t find this drill."
           action={
             <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
               <Link href="/drills">Back to the queue</Link>
             </Button.Root>
           }
         >
-          It is missing, or it belongs to another player.
+          It’s missing, or it belongs to someone else.
         </EmptyPlate>
       </DashboardWell>
     );
@@ -114,10 +114,11 @@ function Session() {
         ]}
       />
       <header className="flex flex-col gap-1">
-        <h1 className="font-display text-2xl font-extrabold tracking-tight">One position, one job.</h1>
+        <h1 className="font-display text-2xl font-extrabold tracking-tight">Your move.</h1>
+        <span className="h-1 w-12 bg-magenta" aria-hidden />
         <p className="font-mono text-sm text-text-strong-950">
           {DRILL_KIND_LABEL[drill.kind]}
-          {solved ? ' · cleared — on your completed list' : ''}
+          {solved ? ' · cleared — it’s on your done list' : ''}
         </p>
       </header>
       <DrillDesk

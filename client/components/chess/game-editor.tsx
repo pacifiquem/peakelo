@@ -386,10 +386,10 @@ export function GameEditor({
           {!ready ? (
             <p className="text-sm text-text-sub-600">
               {analysis.status === 'failed'
-                ? 'The engine could not finish this game.'
+                ? 'I couldn’t finish reading this game.'
                 : analysis.status === 'none'
-                  ? 'No engine pass on this game yet.'
-                  : 'This game is still in the engine pass. The bar and glyphs wait for real evals.'}
+                  ? 'This game hasn’t been read yet.'
+                  : 'I’m still reading this game. The bar and the marks show up when the evals are real.'}
             </p>
           ) : null}
           <MoveList plies={replayed.plies} current={ply} onSelect={go} byPly={ready ? byPly : null} />

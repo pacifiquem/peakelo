@@ -17,19 +17,24 @@ export default function LandingPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-8 px-6 py-16">
-      <div className="flex flex-col gap-4">
-        <p className="font-mono text-sm tracking-wide text-text-sub-600">PEAKELO</p>
+      <div className="peakelo-scan w-full" aria-hidden />
+      <div className="flex flex-col gap-4 border-2 border-ink bg-paper p-5 shadow-regular-sm">
+        <p className="flex items-center gap-2 font-mono text-sm text-text-sub-600">
+          <span className="size-2 bg-magenta" aria-hidden />
+          Peakelo
+        </p>
         <h1 className="font-display text-5xl font-extrabold tracking-tight text-text-strong-950">
           Master chess.
         </h1>
+        <span className="h-1 w-16 bg-cyan" aria-hidden />
         <p className="max-w-xl text-lg text-text-sub-600">
-          Paste a finished Chess.com or Lichess game. We run the engine and write a human review —
-          the same pass the desk uses after you join.
+          Paste a finished Chess.com or Lichess game. I&apos;ll read it the way a coach would — the
+          same pass you get after you join.
         </p>
       </div>
 
       <form
-        className="flex flex-col gap-3 border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs"
+        className="flex flex-col gap-3 border-2 border-t-4 border-ink border-t-magenta bg-bg-white-0 p-5 shadow-regular-sm"
         onSubmit={(event) => {
           event.preventDefault();
           const next = url.trim();
@@ -63,8 +68,8 @@ export default function LandingPage() {
         </Button.Root>
       </form>
 
-      <p className="max-w-xl text-sm leading-6 text-text-sub-600">
-        One public game, no account. Join to import your last hundred and keep them in sync.
+      <p className="max-w-xl border-2 border-ink bg-paper px-4 py-3 text-sm leading-6 text-text-sub-600 shadow-regular-xs">
+        One game, no account. Join if you want the last hundred kept in sync.
       </p>
       <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
         <Link href="/join">Join Peakelo</Link>

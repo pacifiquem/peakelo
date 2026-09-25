@@ -19,8 +19,8 @@ export const PROFILE_CHAPTERS = [
     href: '/profile/mistakes',
     tease: (doc: Writeup) =>
       doc.mistakes.length === 0
-        ? 'No named leaks in this writeup.'
-        : `${doc.mistakes.length} named patterns from your games.`,
+        ? 'No repeating mistake named yet.'
+        : `${doc.mistakes.length} patterns from your games.`,
   },
   {
     id: 'structures',
@@ -28,7 +28,7 @@ export const PROFILE_CHAPTERS = [
     href: '/profile/structures',
     tease: (doc: Writeup) =>
       doc.structures.length === 0
-        ? 'No structure notes in this writeup.'
+        ? 'No structure stood out as a leak.'
         : doc.structures.map((block) => block.name).join(' · '),
   },
   {
@@ -37,7 +37,7 @@ export const PROFILE_CHAPTERS = [
     href: '/profile/tactics',
     tease: (doc: Writeup) =>
       doc.tactics.length === 0
-        ? 'No tactic notes in this writeup.'
+        ? 'No tactic stood out as a miss.'
         : doc.tactics.map((block) => block.name).join(' · '),
   },
   {
@@ -45,7 +45,7 @@ export const PROFILE_CHAPTERS = [
     label: 'Keep these',
     href: '/profile/keep',
     tease: (doc: Writeup) =>
-      doc.keep.length === 0 ? 'No strengths called out yet.' : doc.keep.map((block) => block.name).join(' · '),
+      doc.keep.length === 0 ? 'No strength to protect yet.' : doc.keep.map((block) => block.name).join(' · '),
   },
   {
     id: 'now',

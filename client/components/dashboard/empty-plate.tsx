@@ -24,7 +24,9 @@ export function EmptyPlate({
       role={warning ? 'status' : undefined}
       className={cn(
         'border-2 border-ink p-6 shadow-regular-sm md:p-8',
-        warning ? 'border-l-8 border-l-warning-base bg-warning-base/20' : 'bg-bg-white-0',
+        warning
+          ? 'border-l-8 border-l-gold bg-gold/25'
+          : 'border-t-4 border-t-magenta bg-bg-white-0',
         className,
       )}
     >

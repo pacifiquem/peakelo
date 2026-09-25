@@ -42,8 +42,10 @@ export default function PublicReviewPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-12">
-      <header className="flex flex-col gap-3">
-        <Link href="/" className="w-fit font-mono text-sm underline decoration-2 underline-offset-4">
+      <div className="peakelo-scan w-full" aria-hidden />
+      <header className="flex flex-col gap-3 border-2 border-ink bg-paper p-5 shadow-regular-xs">
+        <Link href="/" className="inline-flex w-fit items-center gap-2 font-display text-sm font-bold">
+          <span className="size-2 bg-magenta" aria-hidden />
           Peakelo
         </Link>
         {review ? (
@@ -69,20 +71,20 @@ export default function PublicReviewPage() {
       {review === undefined ? <p className="text-text-sub-600">Loading the game…</p> : null}
 
       {review === null ? (
-        <p className="text-text-sub-600">That review is not on this desk.</p>
+        <p className="text-text-sub-600">I can&apos;t find that review.</p>
       ) : null}
 
       {review && (review.status === 'queued' || review.status === 'running') ? (
         <p className="max-w-[62ch] text-base leading-7">
           {review.status === 'queued'
-            ? 'The game is on the desk. The engine will read every move next.'
-            : 'The engine is reading every move. The coach writes after that.'}
+            ? 'The game is here. I’ll read every move next.'
+            : 'I’m reading every move. The writeup comes after that.'}
         </p>
       ) : null}
 
       {review && review.status === 'failed' ? (
         <p className="max-w-[62ch] text-base leading-7">
-          {review.error ?? 'We could not finish that game.'}
+          {review.error ?? 'I couldn’t finish that game.'}
         </p>
       ) : null}
 

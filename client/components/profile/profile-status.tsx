@@ -21,18 +21,17 @@ export function ProfileStatus({
 }) {
   if (active) {
     return (
-      <EmptyPlate folio="Engine pass" title="Building your profile">
-        <p>Every imported move goes through the engine. This stays on the desk until it finishes.</p>
+      <EmptyPlate folio="Profile" title="Reading your games">
+        <p>Every imported move goes through the engine. I’ll write you up when that’s finished.</p>
         <EnginePassCounts pass={pass} className="mt-3" />
-        <p className="mt-3 text-sm text-text-sub-600">The coach document comes after this pass.</p>
       </EmptyPlate>
     );
   }
 
   if (pass.status === 'failed') {
     return (
-      <EmptyPlate folio="Engine pass" title="The engine pass failed." tone="warning">
-        {pass.error ?? 'The engine pass did not finish.'}
+      <EmptyPlate folio="Profile" title="I couldn’t finish reading your games." tone="warning">
+        {pass.error ?? 'The read stopped before I could write you up.'}
       </EmptyPlate>
     );
   }
@@ -46,8 +45,8 @@ export function ProfileStatus({
 
   if (pass.status === 'ready' && snapshot === null) {
     return (
-      <EmptyPlate folio="Profile" title="Could not load the profile.">
-        The pass is marked ready, but this desk could not read it.
+      <EmptyPlate folio="Profile" title="I couldn’t open your profile.">
+        The games are read, but this page couldn’t load the writeup. Try again in a moment.
       </EmptyPlate>
     );
   }
@@ -57,9 +56,9 @@ export function ProfileStatus({
   }
 
   return (
-    <EmptyPlate folio="Plate 00" title="No profile yet.">
-      No profile until every imported move has been through the engine. A type guessed from your
-      first moves would be a costume.
+    <EmptyPlate folio="Profile" title="No profile yet.">
+      I won’t guess what kind of player you are from a handful of moves. This shows up after I’ve
+      read every imported game.
     </EmptyPlate>
   );
 }

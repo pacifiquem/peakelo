@@ -83,9 +83,9 @@ function KindSet({ kind }: { kind: DrillKind }) {
       <header className="flex flex-col gap-2">
         <h1 className="font-display text-3xl font-extrabold">{DRILL_KIND_LABEL[kind]}</h1>
         {why ? <p className="max-w-[62ch] text-base leading-7 text-text-strong-950">{why}</p> : null}
+        <span className="h-1 w-16 bg-gold" aria-hidden />
         <p className="max-w-[62ch] text-sm leading-6 text-text-sub-600">
-          One set. Cleared positions stay on the Done list so you can see what you have already
-          solved.
+          Cleared positions stay on Done, so you can see what you&apos;ve already solved.
         </p>
         <ProgressMeter done={cleared.done} total={cleared.total} label="positions cleared" />
       </header>
@@ -124,7 +124,7 @@ function KindSet({ kind }: { kind: DrillKind }) {
       {loaded && rows && rows.data.length === 0 ? (
         <EmptyPlate
           folio={DRILL_KIND_LABEL[kind]}
-          title={status === 'done' ? 'Nothing marked done yet.' : 'Nothing due in this set.'}
+          title={status === 'done' ? 'Nothing cleared yet.' : 'Nothing waiting in this set.'}
           action={
             <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
               <Link href="/drills">All sets</Link>
@@ -132,8 +132,8 @@ function KindSet({ kind }: { kind: DrillKind }) {
           }
         >
           {status === 'done'
-            ? 'Finish a position and it lands here.'
-            : 'When the syllabus names a leak of this type, the positions show up here.'}
+            ? 'Finish a position and it shows up here, with the time you cleared it.'
+            : 'When I name a leak like this, the positions from your games show up here.'}
         </EmptyPlate>
       ) : null}
 
@@ -147,7 +147,7 @@ function KindSet({ kind }: { kind: DrillKind }) {
               <li key={drill.id}>
                 <Link
                   href={`/drills/${drill.id}`}
-                  className="flex flex-col border-2 border-ink bg-bg-white-0 p-4 shadow-regular-xs hover:bg-bg-weak-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                  className="flex flex-col border-2 border-l-4 border-ink border-l-magenta bg-bg-white-0 p-4 shadow-regular-xs hover:bg-bg-weak-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                 >
                   <p className="font-mono text-sm text-text-sub-600">
                     {String(index + 1 + (rows.pagination.page - 1) * rows.pagination.pageSize).padStart(2, '0')}

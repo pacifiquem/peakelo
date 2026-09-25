@@ -57,14 +57,14 @@ function GameLesson({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) 
         {game === null ? (
           <EmptyPlate
             folio="Game lesson"
-            title="That game is not on this desk."
+            title="I can’t find that game."
             action={
               <Button.Root asChild variant="neutral" mode="stroke" className="w-fit">
                 <Link href="/games">Back to games</Link>
               </Button.Root>
             }
           >
-            It is missing, or it belongs to another player.
+            It’s missing, or it belongs to someone else.
           </EmptyPlate>
         ) : null}
 
@@ -81,11 +81,11 @@ function GameLesson({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) 
                 {game.whiteName} vs {game.blackName}
               </h1>
               <p className="font-mono text-sm text-text-strong-950">
-                {game.timeControl} · you as {game.userColor} · {game.result} ·{' '}
+                {game.timeControl} · you played {game.userColor} · {game.result} ·{' '}
                 <time dateTime={game.playedAt}>{new Date(game.playedAt).toLocaleString()}</time>
                 {game.analysis.status === 'ready'
-                  ? ' · engine marks on the scoresheet'
-                  : ' · engine marks wait for the pass'}
+                  ? ' · the moves are marked'
+                  : ' · the marks show up after the read'}
               </p>
             </header>
             <GameEditor
