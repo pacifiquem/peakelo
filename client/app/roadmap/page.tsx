@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { DRILL_KIND_LABEL, type PublicRoadmap, type TrainingDesk } from '@peakelo/shared';
+import type { PublicRoadmap, TrainingDesk } from '@peakelo/shared';
 
 import { AppShell } from '@/components/app-shell';
 import { Breadcrumb } from '@/components/dashboard/breadcrumb';
@@ -10,7 +10,6 @@ import { DashboardGate } from '@/components/dashboard/dashboard-gate';
 import { DashboardWell } from '@/components/dashboard/dashboard-well';
 import { EmptyPlate } from '@/components/dashboard/empty-plate';
 import { PageIntro } from '@/components/dashboard/page-intro';
-import { ProgressMeter } from '@/components/dashboard/progress-meter';
 import * as Button from '@/components/ui/button';
 import { showError } from '@/components/ui/toast';
 import { drillKindHref } from '@/lib/drill-kind';
@@ -84,82 +83,61 @@ function RoadmapDesk() {
 }
 
 function Syllabus({ roadmap, desk }: { roadmap: PublicRoadmap; desk: TrainingDesk }) {
+  const current = roadmap.steps.find((step) => step.status === 'current');
+  const [openId, setOpenId] = useState<string | null>(current?.id ?? null);
+
   return (
     <div className="flex flex-col gap-6">
-      <section className="border-2 border-t-4 border-ink border-t-gold bg-gold/25 p-5 shadow-regular-sm">
-        <p className="font-mono text-sm">The rule for now · {desk.progress.goalLabel}</p>
+      <section className="border-2 border-t-4 border-ink border-t-gold bg-bg-white-0 p-5 shadow-regular-sm">
+        <p className="font-mono text-sm">The rule for now</p>
         <h2 className="mt-2 font-display text-2xl font-extrabold">{roadmap.goldRule}</h2>
-        <div className="mt-4 flex flex-col gap-3">
-          <ProgressMeter
-            done={desk.progress.stepsDone}
-            total={desk.progress.stepsTotal}
-            label="steps cleared"
-          />
-          <ProgressMeter
-            done={desk.progress.drillsDone}
-            total={desk.progress.drillsTotal}
-            label="positions cleared"
-          />
-          <p className="font-mono text-sm">
-            {desk.progress.drillsDue} still to play · {desk.progress.drillsDoneThisWeek} cleared this week
-          </p>
-        </div>
-        {desk.progress.leaksStillPresent.length > 0 ? (
-          <p className="mt-3 text-sm leading-6">
-            Still showing up:{' '}
-            {desk.progress.leaksStillPresent
-              .map((item) => `${item.label} (${item.recentCount})`)
-              .join(', ')}
-          </p>
-        ) : (
-          <p className="mt-3 text-sm leading-6">Nothing I named has shown up in the last fifteen games.</p>
-        )}
+        <p className="mt-3 font-mono text-sm">
+          {desk.progress.drillsDone}/{desk.progress.drillsTotal} positions
+        </p>
       </section>
 
-      <ol className="flex flex-col gap-4">
-        {roadmap.steps.map((step, index) => (
-          <li
-            key={step.id}
-            id={`s${index + 1}`}
-            className={`border-2 border-ink bg-bg-white-0 p-5 shadow-regular-xs ${
-              step.status === 'current'
-                ? 'border-t-4 border-t-gold'
-                : step.status === 'done'
-                  ? 'border-t-4 border-t-cyan'
-                  : 'border-t-4 border-t-magenta'
-            }`}
-          >
-            <p className="font-mono text-sm">
-              Step {index + 1} · {DRILL_KIND_LABEL[step.kind]} ·{' '}
-              {step.status === 'current' ? 'now' : step.status === 'upcoming' ? 'later' : 'done'}
-            </p>
-            <h3 className="mt-2 font-display text-xl font-extrabold">{step.title}</h3>
-            <p className="mt-2 max-w-[62ch] text-base leading-7">{step.why}</p>
-            <p className="mt-2 text-sm leading-6 text-text-sub-600">{step.doneWhen}</p>
-            <div className="mt-3">
-              <ProgressMeter
-                done={step.drillsDone}
-                total={step.drillsTotal}
-                label="positions cleared"
-              />
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button.Root asChild size="small" className="w-fit">
-                <Link href={drillKindHref(step.kind)}>Open the set</Link>
-              </Button.Root>
-              {step.drillsDone > 0 ? (
-                <Button.Root asChild variant="neutral" mode="stroke" size="small" className="w-fit">
-                  <Link href={`${drillKindHref(step.kind)}?status=done`}>Cleared positions</Link>
-                </Button.Root>
+      <ol className="flex flex-col gap-2">
+        {roadmap.steps.map((step, index) => {
+          const open = openId === step.id;
+          const mark =
+            step.status === 'current' ? 'bg-gold' : step.status === 'done' ? 'bg-cyan' : 'bg-ink/25';
+          return (
+            <li key={step.id} id={`s${index + 1}`} className="border-2 border-ink bg-bg-white-0 shadow-regular-xs">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                aria-expanded={open}
+                onClick={() => setOpenId(open ? null : step.id)}
+              >
+                <span className="flex items-center gap-3">
+                  <span className={`size-2.5 shrink-0 ${mark}`} aria-hidden />
+                  <span className="font-display text-lg font-extrabold">{step.title}</span>
+                </span>
+                <span className="font-mono text-sm">
+                  {step.drillsDone}/{step.drillsTotal}
+                </span>
+              </button>
+              {open ? (
+                <div className="border-t-2 border-ink px-4 py-4">
+                  <p className="max-w-[62ch] text-base leading-7">{step.why}</p>
+                  {step.doneWhen !== step.why ? (
+                    <p className="mt-2 max-w-[62ch] text-sm leading-6 text-text-sub-600">{step.doneWhen}</p>
+                  ) : null}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button.Root asChild size="small" className="w-fit">
+                      <Link href={drillKindHref(step.kind)}>Start</Link>
+                    </Button.Root>
+                    {step.evidenceGameIds[0] ? (
+                      <Button.Root asChild variant="neutral" mode="stroke" size="small" className="w-fit">
+                        <Link href={`/games/${step.evidenceGameIds[0]}`}>See a game</Link>
+                      </Button.Root>
+                    ) : null}
+                  </div>
+                </div>
               ) : null}
-              {step.evidenceGameIds.slice(0, 2).map((id) => (
-                <Button.Root key={id} asChild variant="neutral" mode="stroke" size="small" className="w-fit">
-                  <Link href={`/games/${id}`}>Cited game</Link>
-                </Button.Root>
-              ))}
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

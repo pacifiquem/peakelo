@@ -118,7 +118,6 @@ function HomeDesk({ user }: { user: Parameters<typeof AppShell>[0]['user'] }) {
             <h2 className="mt-2 font-display text-2xl font-extrabold">
               {DRILL_KIND_LABEL[desk.progress.nextDrill.kind]}
             </h2>
-            <p className="mt-2 max-w-[62ch] text-base leading-7">{desk.progress.nextDrill.stem}</p>
             <Button.Root asChild className="mt-4 w-fit">
               <Link href={`/drills/${desk.progress.nextDrill.id}`}>Play this one</Link>
             </Button.Root>

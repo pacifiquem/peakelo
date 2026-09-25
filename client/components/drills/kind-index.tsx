@@ -79,17 +79,18 @@ export function KindIndex() {
           <li key={row.kind}>
             <Link
               href={drillKindHref(row.kind)}
-              className="block border-2 border-t-4 border-ink border-t-magenta bg-bg-white-0 p-5 shadow-regular-xs hover:bg-bg-weak-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              className="flex items-center justify-between gap-4 border-2 border-ink bg-bg-white-0 px-4 py-3 shadow-regular-xs hover:bg-bg-weak-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             >
-              <ProgressMeter done={row.done} total={row.total} label="cleared" />
-              <h2 className="mt-3 font-display text-2xl font-extrabold">{DRILL_KIND_LABEL[row.kind]}</h2>
-              <p className="mt-2 max-w-[62ch] text-base leading-7 text-text-strong-950">{row.why}</p>
-              <p className="mt-3 font-mono text-sm text-text-sub-600">
-                {row.due} still to play · {row.done} cleared
-              </p>
-              <p className="mt-3 font-display text-sm font-bold text-magenta underline decoration-2 underline-offset-4">
-                Open the set
-              </p>
+              <span className="flex items-center gap-3">
+                <span
+                  className={`size-2.5 shrink-0 ${row.due > 0 ? 'bg-magenta' : 'bg-gold'}`}
+                  aria-hidden
+                />
+                <span className="font-display text-lg font-extrabold">{DRILL_KIND_LABEL[row.kind]}</span>
+              </span>
+              <span className="font-mono text-sm text-text-strong-950">
+                {row.done}/{row.total}
+              </span>
             </Link>
           </li>
         ))}

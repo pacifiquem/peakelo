@@ -13,7 +13,8 @@
 
 ## Done
 
-- [x] Visual pass: board texture, magenta / cyan / gold signals, coach voice on the desks; dev notes off finished pages (checkout stays honest)
+- [x] Learning path: roadmap and drills are names plus a count; the explanation opens with the step (`docs/design/learning-path.md`). Page ground is solid paper again
+- [x] Visual pass: magenta / cyan / gold signals, coach voice on the desks; dev notes off finished pages (checkout stays honest)
 - [x] Study-desk layout: `/games/[id]` and `/drills/[id]` keep the board beside the lesson (mobile Board/Lesson tabs)
 - [x] `/profile` chapters are real child routes; bare engine snapshot is not a student page
 - [x] `/drills` is one card per leak; `/drills/blunder-preventer` lists the moments

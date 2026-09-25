@@ -5,8 +5,9 @@ we do not hide the product.
 
 ## `/roadmap`
 
-Ordered path from this profile toward what a stable player at the next band already does. A
-workbook table of contents, not a course catalog and not a cartoon trail.
+Ordered path from this profile toward what a stable player at the next band already does.
+The path is names and a count. The explanation opens with the step. See
+[`docs/design/learning-path.md`](../design/learning-path.md). Not XP, and not a cartoon trail.
 
 ### On the desk now
 

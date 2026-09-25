@@ -60,13 +60,6 @@ body {
 
 body {
   background-color: var(--color-paper);
-  background-image:
-    linear-gradient(rgb(118 150 86 / 0.28) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(118 150 86 / 0.28) 1px, transparent 1px),
-    linear-gradient(rgb(42 31 20 / 0.07) 50%, transparent 50%),
-    linear-gradient(90deg, rgb(42 31 20 / 0.07) 50%, transparent 50%);
-  background-size: 22px 22px, 22px 22px, 44px 44px, 44px 44px;
-  background-position: 0 0, 0 0, 0 0, 22px 0;
   color: var(--color-text-strong-950);
   font-family: var(--font-sans);
 }

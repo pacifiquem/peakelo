@@ -17,7 +17,7 @@ import { ProgressMeter } from '@/components/dashboard/progress-meter';
 import * as Button from '@/components/ui/button';
 import { showError } from '@/components/ui/toast';
 import { useDeskQuery } from '@/lib/desk-query';
-import { instanceStem } from '@/lib/drill-kind';
+
 import { fetchDrills, fetchTrainingDesk, trainingErrorMessage } from '@/lib/training';
 
 export function KindSetDesk({ kind }: { kind: DrillKind }) {
@@ -149,21 +149,16 @@ function KindSet({ kind }: { kind: DrillKind }) {
                   href={`/drills/${drill.id}`}
                   className="flex flex-col border-2 border-l-4 border-ink border-l-magenta bg-bg-white-0 p-4 shadow-regular-xs hover:bg-bg-weak-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                 >
-                  <p className="font-mono text-sm text-text-sub-600">
-                    {String(index + 1 + (rows.pagination.page - 1) * rows.pagination.pageSize).padStart(2, '0')}
-                    {status === 'done'
-                      ? ` · ${clearedWhen(drill.lastAttemptAt)}`
-                      : drill.lastResult
-                        ? ` · last ${drill.lastResult}`
-                        : ''}
-                    {` · ${drill.hitCount}/${drill.attemptCount} hits`}
-                  </p>
-                  <h2 className="mt-1 font-display text-lg font-extrabold">
-                    {instanceStem(drill.stem, kind)}
-                  </h2>
-                  <p className="mt-2 font-display text-sm font-bold underline decoration-2 underline-offset-4">
-                    {status === 'done' ? 'Open the cleared position' : 'Replay this position'}
-                  </p>
+                  <span className="flex items-center justify-between gap-4">
+                    <span className="font-display text-lg font-extrabold">
+                      Position{' '}
+                      {index + 1 + (rows.pagination.page - 1) * rows.pagination.pageSize}
+                    </span>
+                    <span className="font-mono text-sm text-text-sub-600">
+                      ply {drill.sourcePly}
+                      {status === 'done' ? ` · ${clearedWhen(drill.lastAttemptAt)}` : ''}
+                    </span>
+                  </span>
                 </Link>
               </li>
             ))}

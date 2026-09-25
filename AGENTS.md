@@ -280,7 +280,9 @@ For non-trivial work (new module, multi-file feature, schema change), the orches
 Default loop: read `ENV.md` + `TODO.md` → confirm scope → implement (TDD where it fits) →
 typecheck + lint + test → review → verify the real flow → update ledgers.
 
-For UI: read `align-ui` and `docs/design/ui.md` **before** the first component. Never ship
+For UI: read `align-ui` and `docs/design/ui.md` **before** the first component. Practice and
+analysis pages also follow [`docs/design/learning-path.md`](./docs/design/learning-path.md):
+a list is a name and a count; the explanation opens with the step. Never ship
 `window.alert` / `confirm` / `prompt` or naked red error text as the only feedback.
 
 ---
