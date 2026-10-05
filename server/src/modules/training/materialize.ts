@@ -83,6 +83,9 @@ export function materializeSyllabus(input: {
     if (fallback) steps.push(fallback);
   }
 
+  const structure = structureStep(input.snapshot, input.analyses, existing);
+  if (structure && !steps.some((step) => step.kind === 'pawn_structure')) steps.push(structure);
+
   return {
     goldRule: steps[0]?.title ?? input.writeup.headline,
     steps,
@@ -157,6 +160,51 @@ function leakFromCitations(citations: Citation[], snapshot: BareProfile): Overlo
     }
   }
   return null;
+}
+
+function structureGloss(label: string): string {
+  const lines: string[] = [];
+  if (label.includes('isolated')) {
+    lines.push('An isolated pawn has no friendly pawn on an adjacent file, so only a piece can defend it.');
+  }
+  if (label.includes('passed')) {
+    lines.push('A passed pawn has no enemy pawn in front of it on its file or the next one.');
+  }
+  if (label.includes('doubled')) {
+    lines.push('Doubled pawns share a file, so they cannot defend each other.');
+  }
+  return lines.join(' ');
+}
+
+function structureStep(
+  snapshot: BareProfile,
+  analyses: AnalysisLookup,
+  existing: Set<string>,
+): DraftStep | null {
+  const group = snapshot.structures.find((row) => row.games >= 2 && row.citations.length > 0);
+  if (!group) return null;
+  const why = [group.fingerprint, structureGloss(group.fingerprint), `This showed up in ${group.games} of your games.`]
+    .filter(Boolean)
+    .join(' ');
+  const drafts = draftsFromCitations({
+    citations: group.citations,
+    kind: 'pawn_structure',
+    stepId: 'pawn-structures',
+    why,
+    analyses,
+    existingKeys: existing,
+  });
+  if (drafts.length === 0) return null;
+  return {
+    id: 'pawn-structures',
+    kind: 'pawn_structure',
+    title: group.fingerprint,
+    why,
+    doneWhen: doneWhenFor('pawn_structure'),
+    evidenceGameIds: unique(group.citations.map((citation) => citation.gameId)),
+    leak: null,
+    drafts,
+  };
 }
 
 function fallbackFromSnapshot(

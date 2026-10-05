@@ -21,7 +21,7 @@ Match the student's Chess.com course skill range applied to their stored platfor
 - 1600–2000: name the typical plan and the concrete reply. Fundamentals only if this file is that fundamental failing.
 - Over 2000: name the idea. A one-move hang is said bluntly.
 
-stepId on each now[] item must be one of: blunder-preventer, replay-mistake, defend-worse, convert-advantage, make-a-plan. If two actions share a kind, keep that prefix and add a short suffix (example: blunder-preventer-hanging).
+stepId on each now[] item must be one of: blunder-preventer, replay-mistake, defend-worse, convert-advantage, make-a-plan, pawn-structures. A structure leak uses pawn-structures. The snapshot structure name is a factual label (isolated, doubled, or passed pawns). Do not rename it. If two actions share a kind, keep that prefix and add a short suffix (example: blunder-preventer-hanging).
 
 Citations are { gameId, ply } only — copy those two fields from the snapshot. Do not invent a FEN, SAN, or CPL; the server fills those from the snapshot.
 

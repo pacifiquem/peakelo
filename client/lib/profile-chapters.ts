@@ -114,7 +114,7 @@ export function writeupBottlenecks(document: Writeup): WriteupBottleneck[] {
       story: block.story,
       citations: block.citations,
       href: '/profile/structures',
-      kind: 'make_plan',
+      kind: 'pawn_structure',
     });
   }
   if (document.clock.story) {

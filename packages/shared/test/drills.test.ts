@@ -9,15 +9,17 @@ import {
 } from '../src/drills';
 
 describe('drill contracts', () => {
-  it('names the five ADR 0006 kinds', () => {
+  it('names the practice kinds', () => {
     expect(drillKindSchema.options).toEqual([
       'blunder_preventer',
       'replay_mistake',
       'defend_worse',
       'convert_advantage',
       'make_plan',
+      'pawn_structure',
     ]);
     expect(DRILL_KIND_LABEL.make_plan).toBe('Make a plan');
+    expect(DRILL_KIND_LABEL.pawn_structure).toBe('Pawn structures');
   });
 
   it('defaults a move body to an empty played line', () => {

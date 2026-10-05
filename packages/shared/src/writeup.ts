@@ -65,6 +65,7 @@ export const WRITEUP_STEP_IDS = [
   'defend-worse',
   'convert-advantage',
   'make-a-plan',
+  'pawn-structures',
 ] as const;
 export type WriteupStepId = (typeof WRITEUP_STEP_IDS)[number];
 
@@ -105,6 +106,8 @@ const STEP_ID_ALIASES: Record<string, WriteupStepId> = {
   'convert-advantage': 'convert-advantage',
   'make-a-plan': 'make-a-plan',
   'make-plan': 'make-a-plan',
+  'pawn-structures': 'pawn-structures',
+  'pawn-structure': 'pawn-structures',
 };
 
 export function normalizeWriteupStepId(raw: string): string {

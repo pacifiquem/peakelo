@@ -161,4 +161,30 @@ describe('materializeSyllabus', () => {
     expect(syllabus.steps.length).toBeGreaterThan(0);
     expect(syllabus.steps.every((step) => step.kind !== 'make_plan')).toBe(true);
   });
+
+  it('adds a pawn-structure drill from a repeated skeleton', () => {
+    const syllabus = materializeSyllabus({
+      writeup,
+      snapshot: {
+        ...snapshot,
+        structures: [
+          {
+            fingerprint: 'Black isolated pawn on d5',
+            games: 4,
+            acpl: 40,
+            blunders: 1,
+            citations: [citation],
+          },
+        ],
+      },
+      analyses: new Map([['game-1', [ply]]]),
+      band: 'from1600to2000',
+      goal: 'openings',
+    });
+    const step = syllabus.steps.find((item) => item.kind === 'pawn_structure');
+    expect(step?.title).toBe('Black isolated pawn on d5');
+    expect(step?.why).toContain('4 of your games');
+    expect(step?.why).toContain('only a piece can defend it');
+    expect(step?.drafts[0]?.kind).toBe('pawn_structure');
+  });
 });

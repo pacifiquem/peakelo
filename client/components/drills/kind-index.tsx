@@ -132,5 +132,8 @@ function defaultWhy(kind: DrillKind): string {
   if (kind === 'convert_advantage') {
     return 'Finish a better position you dumped.';
   }
+  if (kind === 'pawn_structure') {
+    return 'A pawn structure from your own games. Open it to see how the pawns sit.';
+  }
   return 'Find the plan in a structure you actually reach.';
 }

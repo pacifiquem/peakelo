@@ -106,7 +106,7 @@ function isAcceptableAlternative(uci: string, lines: EngineLine[] | undefined, k
   if (uci === best.uci) return true;
   const played = lines.find((line) => line.uci === uci);
   if (!played) return false;
-  if (kind !== 'make_plan' && kind !== 'convert_advantage') return false;
+  if (kind !== 'make_plan' && kind !== 'convert_advantage' && kind !== 'pawn_structure') return false;
   if (best.score.kind !== 'cp' || played.score.kind !== 'cp') return played.score.kind === 'mate';
   return Math.abs(best.score.value - played.score.value) <= ALT_CP_WINDOW;
 }

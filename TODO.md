@@ -13,6 +13,7 @@
 
 ## Done
 
+- [x] Pawn structures cluster when the center matches and at most two wing pawns differ; a Pawn structures drill uses those groups
 - [x] Learning path: roadmap and drills are names plus a count; the explanation opens with the step (`docs/design/learning-path.md`). Page ground is solid paper again
 - [x] Visual pass: magenta / cyan / gold signals, coach voice on the desks; dev notes off finished pages (checkout stays honest)
 - [x] Study-desk layout: `/games/[id]` and `/drills/[id]` keep the board beside the lesson (mobile Board/Lesson tabs)

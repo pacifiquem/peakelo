@@ -11,6 +11,8 @@ export const STEP_KIND: Record<string, DrillKind> = {
   convert_advantage: 'convert_advantage',
   'make-a-plan': 'make_plan',
   make_plan: 'make_plan',
+  'pawn-structures': 'pawn_structure',
+  pawn_structure: 'pawn_structure',
 };
 
 const KIND_SLUGS = [
@@ -19,6 +21,7 @@ const KIND_SLUGS = [
   'defend-worse',
   'convert-advantage',
   'make-a-plan',
+  'pawn-structures',
 ] as const;
 
 export function kindFromStepId(stepId: string): DrillKind {
@@ -107,6 +110,7 @@ export function leakForKind(kind: DrillKind): Overlooked | null {
     case 'defend_worse':
     case 'convert_advantage':
     case 'make_plan':
+    case 'pawn_structure':
       return null;
   }
 }
@@ -123,5 +127,7 @@ export function doneWhenFor(kind: DrillKind): string {
       return 'A large edge does not drain to a draw or a loss in the next 15 games.';
     case 'make_plan':
       return 'Against a quiet setup you play a central break instead of shuffling.';
+    case 'pawn_structure':
+      return 'In a structure you reach often, you play a move that fits the pawns.';
   }
 }

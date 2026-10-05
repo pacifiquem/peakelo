@@ -71,6 +71,7 @@ enum DrillKind {
   defend_worse
   convert_advantage
   make_plan
+  pawn_structure
 }
 
 enum DrillStatus {

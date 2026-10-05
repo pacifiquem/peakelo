@@ -6,6 +6,7 @@ export const DRILL_KIND_SLUG: Record<DrillKind, string> = {
   defend_worse: 'defend-worse',
   convert_advantage: 'convert-advantage',
   make_plan: 'make-a-plan',
+  pawn_structure: 'pawn-structures',
 };
 
 const SLUG_TO_KIND = Object.fromEntries(

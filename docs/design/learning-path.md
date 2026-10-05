@@ -75,6 +75,7 @@ to learn it.
 | `/home` | One next drill **name**, games waiting (names and result) | The position and the stem, on `/drills/[id]` |
 | `/roadmap` | Gold rule in one line. Each step: name, now/later/done, `cleared/total` | `why`, `doneWhen`, Start — one step open |
 | `/drills` | Set name and `cleared/total` | The set’s why, on `/drills/[kind]` |
+| `/drills/pawn-structures` | The structure name from the games (isolated, doubled, or passed pawns) | One position from that skeleton |
 | `/drills/[kind]` | Position number, ply, cleared or due | The stem and the board, on `/drills/[id]` |
 | `/profile` | Headline plus leak names | The story, on `/profile/[section]` |
 | `/games/[id]` | Board and the move list | The lesson for the ply the student asked to teach |

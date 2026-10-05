@@ -10,6 +10,12 @@ import { lookupOpening } from '../openings/lookup';
 import { combinationDepth, detectOverlooked } from '../overlook';
 import { gamePhase } from '../phase';
 import { replayPgn } from '../pgn';
+import {
+  clusterBySkeleton,
+  pawnSkeleton,
+  structureLabel,
+  type PawnSkeleton,
+} from './structures';
 
 export type { EngineLine };
 
@@ -128,7 +134,7 @@ export function buildBareProfile(
   const asWhite = emptyColorAcc();
   const asBlack = emptyColorAcc();
   const openingGroups = new Map<string, OpeningAcc>();
-  const structureGroups = new Map<string, StructureAcc>();
+  const structureGames: StructureGame[] = [];
   const mistakeGroups = new Map<Overlooked, MistakeAcc>();
   const tacticGroups = new Map<number, TacticAcc>();
   const phaseGroups = Object.fromEntries(PHASES.map((phase) => [phase, emptyPhaseAcc()])) as Record<
@@ -173,15 +179,15 @@ export function buildBareProfile(
       addOpeningGame(group, outcome, playerPlies, game.gameId);
     }
 
-    const fingerprint = gameFingerprint(game.plies);
-    if (fingerprint) {
-      let group = structureGroups.get(fingerprint);
-      if (!group) {
-        group = { fingerprint, games: 0, cpls: [], blunders: 0, citations: [] };
-        structureGroups.set(fingerprint, group);
-      }
-      group.games += 1;
-      addCpls(group, playerPlies, game.gameId);
+    const anchor = structureAnchor(game.plies);
+    const skeleton = anchor ? pawnSkeleton(anchor.fenAfter) : null;
+    if (anchor && skeleton) {
+      structureGames.push({
+        skeleton,
+        gameId: game.gameId,
+        anchor,
+        playerPlies,
+      });
     }
 
     for (const ply of playerPlies) {
@@ -246,15 +252,24 @@ export function buildBareProfile(
         citations: group.citations.slice(0, 5),
       }))
       .sort((a, b) => b.acpl - a.acpl || b.blunders - a.blunders),
-    structures: [...structureGroups.values()]
-      .map((group) => ({
-        fingerprint: group.fingerprint,
-        games: group.games,
-        acpl: mean(group.cpls),
-        blunders: group.blunders,
-        citations: group.citations.slice(0, 5),
-      }))
-      .sort((a, b) => b.acpl - a.acpl || b.blunders - a.blunders),
+    structures: clusterBySkeleton(structureGames, (game) => game.skeleton)
+      .filter((group) => group.length >= 2)
+      .map((group) => {
+        const acc = emptyStructureAcc(group[0]!.skeleton);
+        for (const game of group) {
+          acc.games += 1;
+          addCpls(acc, game.playerPlies, game.gameId);
+          acc.anchors.push(citationOf(game.gameId, game.anchor));
+        }
+        return {
+          fingerprint: structureLabel(group[0]!.skeleton),
+          games: acc.games,
+          acpl: mean(acc.cpls),
+          blunders: acc.blunders,
+          citations: [...acc.anchors, ...acc.citations].slice(0, 5),
+        };
+      })
+      .sort((a, b) => b.games - a.games || b.acpl - a.acpl),
     mistakes: [...mistakeGroups.values()]
       .map((group) => ({
         overlooked: group.overlooked,
@@ -317,12 +332,19 @@ type OpeningAcc = {
   citations: Citation[];
 };
 
+type StructureGame = {
+  skeleton: PawnSkeleton;
+  gameId: string;
+  anchor: AnalyzedPly;
+  playerPlies: AnalyzedPly[];
+};
+
 type StructureAcc = {
-  fingerprint: string;
   games: number;
   cpls: number[];
   blunders: number;
   citations: Citation[];
+  anchors: Citation[];
 };
 
 type MistakeAcc = {
@@ -419,45 +441,18 @@ function lastOpening(plies: AnalyzedPly[]): { eco: string; name: string } | null
   return opening;
 }
 
-function gameFingerprint(plies: AnalyzedPly[]): string | null {
-  if (plies.length === 0) return null;
-  let chosen = plies[plies.length - 1]!;
-  for (let i = plies.length - 1; i >= 0; i -= 1) {
-    if (plies[i]!.phase !== 'endgame') {
-      chosen = plies[i]!;
-      break;
-    }
-  }
-  return pawnFingerprint(chosen.fenAfter);
+function structureAnchor(plies: AnalyzedPly[]): AnalyzedPly | null {
+  const playable = (ply: AnalyzedPly) => ply.isPlayer && Boolean(ply.bestUci);
+  return (
+    plies.find((ply) => ply.phase === 'middlegame' && playable(ply)) ??
+    [...plies].reverse().find((ply) => ply.phase === 'opening' && playable(ply)) ??
+    plies.find(playable) ??
+    null
+  );
 }
 
-function pawnFingerprint(fen: string): string {
-  const board = fen.split(' ')[0] ?? '';
-  return board
-    .split('/')
-    .map((rank) => {
-      let empty = 0;
-      let out = '';
-      const flush = () => {
-        if (empty > 0) {
-          out += String(empty);
-          empty = 0;
-        }
-      };
-      for (const char of rank) {
-        if (char === 'P' || char === 'p') {
-          flush();
-          out += char;
-        } else if (char >= '1' && char <= '8') {
-          empty += Number(char);
-        } else {
-          empty += 1;
-        }
-      }
-      flush();
-      return out;
-    })
-    .join('/');
+function emptyStructureAcc(_skeleton: PawnSkeleton): StructureAcc {
+  return { games: 0, cpls: [], blunders: 0, citations: [], anchors: [] };
 }
 
 function citationOf(gameId: string, ply: AnalyzedPly): Citation {

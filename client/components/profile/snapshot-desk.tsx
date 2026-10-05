@@ -242,7 +242,7 @@ function StructuresSection({ profile }: { profile: BareProfile }) {
       <ul className="grid gap-4 md:grid-cols-2">
         {slice.map((row) => (
           <li key={row.fingerprint} className="border-2 border-ink bg-bg-white-0 p-4 shadow-regular-xs">
-            <h3 className="break-all font-mono text-sm font-bold">{row.fingerprint}</h3>
+            <h3 className="font-display text-lg font-extrabold">{row.fingerprint}</h3>
             <p className="mt-2 font-mono text-sm">
               {row.games} games · ACPL {formatCpl(row.acpl)} · {row.blunders} blunders
             </p>

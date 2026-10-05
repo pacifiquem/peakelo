@@ -11,6 +11,7 @@ export const drillKindSchema = z.enum([
   'defend_worse',
   'convert_advantage',
   'make_plan',
+  'pawn_structure',
 ]);
 export type DrillKind = z.infer<typeof drillKindSchema>;
 
@@ -20,6 +21,7 @@ export const DRILL_KIND_LABEL: Record<DrillKind, string> = {
   defend_worse: 'Defend worse',
   convert_advantage: 'Convert the edge',
   make_plan: 'Make a plan',
+  pawn_structure: 'Pawn structures',
 };
 
 export const drillStatusSchema = z.enum(['assigned', 'due', 'done', 'retired']);
