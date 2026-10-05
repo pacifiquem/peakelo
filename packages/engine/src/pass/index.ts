@@ -255,7 +255,7 @@ export function buildBareProfile(
     structures: clusterBySkeleton(structureGames, (game) => game.skeleton)
       .filter((group) => group.length >= 2)
       .map((group) => {
-        const acc = emptyStructureAcc(group[0]!.skeleton);
+        const acc = emptyStructureAcc();
         for (const game of group) {
           acc.games += 1;
           addCpls(acc, game.playerPlies, game.gameId);
@@ -451,7 +451,7 @@ function structureAnchor(plies: AnalyzedPly[]): AnalyzedPly | null {
   );
 }
 
-function emptyStructureAcc(_skeleton: PawnSkeleton): StructureAcc {
+function emptyStructureAcc(): StructureAcc {
   return { games: 0, cpls: [], blunders: 0, citations: [], anchors: [] };
 }
 
